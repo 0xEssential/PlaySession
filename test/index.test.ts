@@ -318,7 +318,7 @@ describe.only('Counter', function () {
           // here we provide a proof that respects the PS approval
           // our JSON RPC trustfully calls the contract to check for
           // a valid approval from NFT owner ---> burner
-          const message = await relayer.forwarder.createMessage(burner.address, nonce, _nftContract, tokenId);
+          const message = await relayer.forwarder.createMessage(account.address, nonce, _nftContract, tokenId);
 
           const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
 
