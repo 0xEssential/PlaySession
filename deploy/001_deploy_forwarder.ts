@@ -1,19 +1,29 @@
 import {HardhatRuntimeEnvironment} from 'hardhat/types';
 import {DeployFunction} from 'hardhat-deploy/types';
-import {parseEther} from 'ethers/lib/utils';
+import {getChainId} from 'hardhat';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, getNamedAccounts} = hre;
   const {deploy} = deployments;
 
-  const {deployer, simpleERC20Beneficiary} = await getNamedAccounts();
+  const networkName = await getChainId().then(
+    (id) =>
+      ({
+        80001: 'mumbai',
+        137: 'matic',
+      }[id])
+  );
 
-  await deploy('SimpleERC20', {
+  if (!networkName) return;
+
+  const {deployer} = await getNamedAccounts();
+
+  await deploy('EssentialForwarder', {
     from: deployer,
-    args: [simpleERC20Beneficiary, parseEther('1000000000')],
+    args: ['0xEssential PlaySession', ['https://middleware.nfight.xyz']],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });
 };
 export default func;
-func.tags = ['SimpleERC20'];
+func.tags = ['Forwarder'];

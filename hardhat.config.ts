@@ -6,6 +6,7 @@ import 'hardhat-gas-reporter';
 import '@typechain/hardhat';
 import 'solidity-coverage';
 import 'hardhat-deploy-tenderly';
+import '@nomiclabs/hardhat-etherscan';
 import {node_url, accounts, addForkConfiguration} from './utils/network';
 
 const config: HardhatUserConfig = {
@@ -24,7 +25,6 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: {
     deployer: 0,
-    simpleERC20Beneficiary: 1,
   },
   networks: addForkConfiguration({
     hardhat: {
@@ -58,7 +58,24 @@ const config: HardhatUserConfig = {
       url: node_url('goerli'),
       accounts: accounts('goerli'),
     },
+    matic: {
+      url: node_url('polygon-mainnet'),
+      accounts: accounts('matic'),
+    },
+    mumbai: {
+      url: node_url('polygon-mumbai'),
+      accounts: accounts('mumbai'),
+      chainId: 80001,
+    },
   }),
+  etherscan: {
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      rinkeby: process.env.ETHERSCAN_API_KEY,
+      polygon: process.env.POLYGONSCAN_API_KEY,
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+    },
+  },
   paths: {
     sources: 'src',
   },

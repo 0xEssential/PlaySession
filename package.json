@@ -19,6 +19,7 @@
   ],
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.12",
+    "@nomiclabs/hardhat-etherscan": "^3.0.1",
     "@openzeppelin/contracts": "^4.4.2",
     "@typechain/ethers-v5": "^9.0.0",
     "@typechain/hardhat": "^4.0.0",
@@ -75,5 +76,8 @@
     "fork:node": "node ./_scripts.js fork:node",
     "fork:test": "node ./_scripts.js fork:test",
     "tenderly:push": "node ./_scripts.js tenderly:push"
+  },
+  "dependencies": {
+    "@0xessential/metassential": "file:../metatransactions"
   }
 }
