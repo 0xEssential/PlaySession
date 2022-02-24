@@ -40,6 +40,11 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
         urls = _urls;
     }
 
+    /// @notice Change the ownership signer
+    function setOwnershipSigner(address newSigner) external onlyRole(ADMIN_ROLE) {
+        _setOwnershipSigner(newSigner);
+    }
+
     /// @notice Get current nonce for EOA
     function getNonce(address from) public view returns (uint256) {
         return _nonces[from];

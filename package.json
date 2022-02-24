@@ -78,6 +78,6 @@
     "tenderly:push": "node ./_scripts.js tenderly:push"
   },
   "dependencies": {
-    "@0xessential/metassential": "file:../metatransactions"
+    "@0xessential/metassential": "https://github.com/0xEssential/metassential#3c77b1f"
   }
 }

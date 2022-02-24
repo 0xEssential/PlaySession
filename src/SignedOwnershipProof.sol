@@ -54,7 +54,8 @@ contract SignedOwnershipProof {
         // Separately we must verify that the meta-tx signature also matches req and is signed by the
         // EOA making the meta-transaction request.
 
-        bytes32 message = createMessage(req.from, req.nonce, req.nftContract, req.tokenId).toEthSignedMessageHash();
+        bytes32 message = createMessage(req.authorizer, req.nonce, req.nftContract, req.tokenId)
+            .toEthSignedMessageHash();
 
         return message.recover(signature) == _ownershipSigner;
     }
@@ -65,7 +66,6 @@ contract SignedOwnershipProof {
         return _ownershipSigner;
     }
 
-    /// @notice Change the ownership signer
     /// @dev This signer should hold no assets and is only used for signing L1 ownership proofs.
     /// @param newSigner the new signer's public address
     function _setOwnershipSigner(address newSigner) internal {
