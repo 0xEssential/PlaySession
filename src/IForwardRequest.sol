@@ -12,11 +12,17 @@ interface IForwardRequest {
         uint256 value; // Amount of ether to transfer to the destination.
         uint256 gas; // Amount of gas limit to set for the execution.
         uint256 nonce; // On-chain tracked nonce of a transaction.
+        uint256 tokenNonce; // On-chain tracked nonce of a token.
         bytes data; // (Call)data to be sent to the destination.
     }
 
     struct PlaySession {
         address authorized; // Burner EOA that is authorized to play with NFTs by owner EOA.
         uint256 expiresAt; // block timestamp when the session is invalidated.
+    }
+
+    struct NFT {
+        address contractAddress;
+        uint256 tokenId;
     }
 }

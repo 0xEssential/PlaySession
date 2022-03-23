@@ -78,29 +78,12 @@ describe.only('Counter', function () {
       fixtures = await deployContracts();
     });
 
-    it('increments permissionlessly', async function () {
-      const {
-        counter,
-        users: [_relayer, account],
-      } = fixtures;
-
-      await account.counter.increment();
-
-      expect(await counter.count(account.address)).to.equal(1);
-    });
-  });
-
-  describe('incrementFromForwarderOnly', async () => {
-    before(async () => {
-      fixtures = await deployContracts();
-    });
-
     it('reverts if called outside of forwarder', async function () {
       const {
         users: [_relayer, account],
       } = fixtures;
 
-      await expect(account.counter.incrementFromForwarderOnly()).to.be.revertedWith('429');
+      await expect(account.counter.increment()).to.be.revertedWith('429');
     });
 
     it('Increments via Forwarder with OffchainLookup proof', async function () {
@@ -110,7 +93,7 @@ describe.only('Counter', function () {
         users: [relayer, account, nftContract],
       } = fixtures;
 
-      const {signature, request} = await account.wrappedCounter.incrementFromForwarderOnly(
+      const {signature, request} = await account.wrappedCounter.increment(
         nftContract.address,
         BigNumber.from(411),
         account.address
@@ -128,13 +111,13 @@ describe.only('Counter', function () {
 
           // decode the bytes
           const abi = new ethers.utils.AbiCoder();
-          const [from, nonce, _nftContract, tokenId] = abi.decode(
-            ['address', 'uint256', 'address', 'uint256'],
+          const [from, nonce, _nftContract, tokenId, tokenNonce] = abi.decode(
+            ['address', 'uint256', 'address', 'uint256', 'uint256'],
             callData
           );
 
           // lookup current owner on mainnet
-          const message = await relayer.forwarder.createMessage(from, nonce, _nftContract, tokenId);
+          const message = await relayer.forwarder.createMessage(from, nonce, _nftContract, tokenId, tokenNonce);
 
           const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
 
@@ -155,7 +138,7 @@ describe.only('Counter', function () {
     });
   });
 
-  describe('incrementFromForwarderOnly with PlaySession', async () => {
+  describe('increment with PlaySession', async () => {
     before(async () => {
       fixtures = await deployContracts();
     });
@@ -165,7 +148,7 @@ describe.only('Counter', function () {
         users: [_relayer, account],
       } = fixtures;
 
-      await expect(account.counter.incrementFromForwarderOnly()).to.be.revertedWith('429');
+      await expect(account.counter.increment()).to.be.revertedWith('429');
     });
 
     it('Reverts when owner has no PlaySession', async function () {
@@ -175,7 +158,7 @@ describe.only('Counter', function () {
         users: [relayer, account, nftContract, burner],
       } = fixtures;
 
-      const {signature, request} = await burner.wrappedCounter.incrementFromForwarderOnly(
+      const {signature, request} = await burner.wrappedCounter.increment(
         nftContract.address,
         BigNumber.from(411),
         burner.address
@@ -194,15 +177,21 @@ describe.only('Counter', function () {
 
           // decode the bytes
           const abi = new ethers.utils.AbiCoder();
-          const [_from, nonce, _nftContract, tokenId] = abi.decode(
-            ['address', 'uint256', 'address', 'uint256'],
+          const [_from, nonce, _nftContract, tokenId, tokenNonce] = abi.decode(
+            ['address', 'uint256', 'address', 'uint256', 'uint256'],
             callData
           );
 
           // lookup current owner on mainnet
 
           // here we mock the proof for a different current owner
-          const message = await relayer.forwarder.createMessage(account.address, nonce, _nftContract, tokenId);
+          const message = await relayer.forwarder.createMessage(
+            account.address,
+            nonce,
+            _nftContract,
+            tokenId,
+            tokenNonce
+          );
 
           const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
 
@@ -233,7 +222,7 @@ describe.only('Counter', function () {
 
       await createSession.wait();
 
-      const {signature, request} = await burner.wrappedCounter.incrementFromForwarderOnly(
+      const {signature, request} = await burner.wrappedCounter.increment(
         nftContract.address,
         BigNumber.from(411),
         burner.address
@@ -252,15 +241,21 @@ describe.only('Counter', function () {
 
           // decode the bytes
           const abi = new ethers.utils.AbiCoder();
-          const [_from, nonce, _nftContract, tokenId] = abi.decode(
-            ['address', 'uint256', 'address', 'uint256'],
+          const [_from, nonce, _nftContract, tokenId, tokenNonce] = abi.decode(
+            ['address', 'uint256', 'address', 'uint256', 'uint256'],
             callData
           );
 
           // lookup current owner on mainnet
 
           // here we mock the proof for a different current owner
-          const message = await relayer.forwarder.createMessage(account.address, nonce, _nftContract, tokenId);
+          const message = await relayer.forwarder.createMessage(
+            account.address,
+            nonce,
+            _nftContract,
+            tokenId,
+            tokenNonce
+          );
 
           const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
 
@@ -290,7 +285,7 @@ describe.only('Counter', function () {
       const createSession = await account.forwarder.createSession(burner.address, 10_000);
       await createSession.wait();
 
-      const {signature, request} = await burner.wrappedCounter.incrementFromForwarderOnly(
+      const {signature, request} = await burner.wrappedCounter.increment(
         nftContract.address,
         BigNumber.from(411),
         account.address
@@ -324,10 +319,12 @@ describe.only('Counter', function () {
 
           // response = json_rpc_call(url, 'durin_call', {'to': forwarder.address, 'data': calldata, 'abi': abi})
 
-          const tx = await relayer.forwarder.signer.sendTransaction({
-            to: forwarder.address,
-            data: ethers.utils.hexConcat([callbackFunction, abi.encode(['bytes', 'bytes'], [proof, extraData])]),
-          });
+          // const tx = await relayer.forwarder.signer.sendTransaction({
+          //   to: forwarder.address,
+          //   data: ethers.utils.hexConcat([callbackFunction, abi.encode(['bytes', 'bytes'], [proof, extraData])]),
+          // });
+
+          const tx = await relayer.forwarder.executeWithProof(proof, extraData);
 
           await tx.wait();
 

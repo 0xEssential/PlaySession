@@ -1,11 +1,14 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.9;
 
-import "hardhat/console.sol";
 import "./EssentialERC2771Context.sol";
 
 contract Counter is EssentialERC2771Context {
+    uint256 public totalCount;
     mapping(address => uint256) public count;
+    mapping(address => mapping(uint256 => address)) internal registeredNFTs;
+
+    event Counted(address indexed contractAddress, uint256 indexed tokenId, address indexed counter);
 
     modifier onlyForwarder() {
         require(isTrustedForwarder(msg.sender), "Counter:429");
@@ -14,11 +17,20 @@ contract Counter is EssentialERC2771Context {
 
     constructor(address trustedForwarder) EssentialERC2771Context(trustedForwarder) {}
 
-    function increment() external {
-        count[_msgSender()] += 1;
-    }
+    function increment() external onlyForwarder {
+        IForwardRequest.NFT memory nft = _msgNFT();
 
-    function incrementFromForwarderOnly() external onlyForwarder {
-        count[_msgSender()] += 1;
+        require(registeredNFTs[nft.contractAddress][nft.tokenId] == address(0), "NFT already counted");
+
+        address owner = _msgSender();
+
+        registeredNFTs[nft.contractAddress][nft.tokenId] = owner;
+
+        unchecked {
+            ++count[owner];
+            ++totalCount;
+        }
+
+        emit Counted(nft.contractAddress, nft.tokenId, owner);
     }
 }

@@ -4,6 +4,7 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/Context.sol";
+import "./IForwardRequest.sol";
 
 /**
  * @dev Context variant with ERC2771 support.
@@ -34,7 +35,7 @@ abstract contract EssentialERC2771Context is Context {
         if (isTrustedForwarder(msg.sender)) {
             // The assembly code is more direct than the Solidity version using `abi.decode`.
             assembly {
-                sender := shr(96, calldataload(sub(calldatasize(), 20)))
+                sender := shr(0x60, calldataload(sub(calldatasize(), 20)))
             }
         } else {
             return super._msgSender();
@@ -43,9 +44,22 @@ abstract contract EssentialERC2771Context is Context {
 
     function _msgData() internal view virtual override returns (bytes calldata) {
         if (isTrustedForwarder(msg.sender)) {
-            return msg.data[:msg.data.length - 20];
+            return msg.data[:msg.data.length - 72];
         } else {
             return super._msgData();
         }
+    }
+
+    function _msgNFT() internal view returns (IForwardRequest.NFT memory) {
+        uint256 tokenId;
+        address contractAddress;
+        if (isTrustedForwarder(msg.sender)) {
+            assembly {
+                contractAddress := shr(0x60, calldataload(sub(calldatasize(), 40)))
+                tokenId := calldataload(sub(calldatasize(), 72))
+            }
+        }
+
+        return IForwardRequest.NFT({contractAddress: contractAddress, tokenId: tokenId});
     }
 }

@@ -16,29 +16,24 @@ contract SignedOwnershipProof {
     address private _ownershipSigner;
 
     mapping(address => IForwardRequest.PlaySession) internal _sessions;
+    mapping(address => uint256) internal _nonces;
+    mapping(address => mapping(uint256 => uint256)) internal _tokenNonces;
 
     /// @notice Construct message that _ownershipSigner must sign as ownership proof
     /// @dev The RPC server uses this view function to create the ownership proof
-    /// @param account the address that currently owns the L1 NFT
+    /// @param nftOwner the address that currently owns the L1 NFT
     /// @param nonce the meta-transaction nonce for account
     /// @param nftContract the mainnet contract address for the NFT being utilized
     /// @param tokenId the tokenId from nftContract for the NFT being utilized
     /// @return the message _ownershipSigner should sign
     function createMessage(
-        address account,
+        address nftOwner,
         uint256 nonce,
         address nftContract,
-        uint256 tokenId
-    ) public view returns (bytes32) {
-        // The JSON RPC server gets the current owner of the L1 NFT and calls this function.
-        // This respects PlaySession authorizations - if the current L1 owner has authorized
-        // a Burner EOA to play games with its NFTs via createSession, and the sesssion is still
-        // valid, the ownership proof will encode the authorized Burner address.
-
-        IForwardRequest.PlaySession memory ps = _sessions[account];
-        require(block.timestamp < ps.expiresAt, "Session Expired");
-
-        return keccak256(abi.encode(account, nonce, nftContract, tokenId));
+        uint256 tokenId,
+        uint256 tokenNonce
+    ) public pure returns (bytes32) {
+        return keccak256(abi.encode(nftOwner, nonce, nftContract, tokenId, tokenNonce));
     }
 
     /// @notice Verify signed OffchainLookup proof against meta-tx request data
@@ -50,11 +45,20 @@ contract SignedOwnershipProof {
         view
         returns (bool)
     {
-        // Only verifies that ownership proof signature matches req and is signed by _ownerShip signer.
-        // Separately we must verify that the meta-tx signature also matches req and is signed by the
-        // EOA making the meta-transaction request.
+        // Verifies that ownership proof signature is signed by _ownershipSigner,
+        // that the encoded owner has authorized req.from, and that the encoded
+        // tokenNonce matches the current nonce.
+        //
+        // Previously we verified that ForwardRequest was signed by req.from.
+        // Ownership verification is simple to bypass with the open RPC API, but
+        // the PlaySession checks fail without direct authorization.
+        require(req.tokenNonce == _tokenNonces[req.nftContract][req.tokenId], "Token nonce inaccurate");
 
-        bytes32 message = createMessage(req.authorizer, req.nonce, req.nftContract, req.tokenId)
+        IForwardRequest.PlaySession memory ps = _sessions[req.authorizer];
+        require(ps.authorized == req.from, "Unauthorized");
+        require(block.timestamp < ps.expiresAt, "Expired");
+
+        bytes32 message = createMessage(req.authorizer, req.nonce, req.nftContract, req.tokenId, req.tokenNonce)
             .toEthSignedMessageHash();
 
         return message.recover(signature) == _ownershipSigner;

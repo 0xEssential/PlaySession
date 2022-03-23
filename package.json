@@ -1,13 +1,13 @@
 {
-  "name": "template-ethereum-contracts",
+  "name": "playsession-contracts",
   "version": "0.1.0",
-  "description": "Template to develop ethereum smart contracts",
+  "description": "Hardhat project with Solidity contracts for 0xEssential PlaySession",
   "private": true,
   "engines": {
     "node": ">= 14.0.0"
   },
-  "repository": "github:wighawag/template-ethereum-contracts",
-  "author": "wighawag",
+  "repository": "github:0xessential/playsession",
+  "author": "sbauch",
   "license": "MIT",
   "keywords": [
     "ethereum",

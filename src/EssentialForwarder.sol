@@ -30,7 +30,6 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
     bytes32 private constant _TYPEHASH =
         keccak256("ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data)");
 
-    mapping(address => uint256) private _nonces;
     string[] public urls;
 
     constructor(string memory name, string[] memory _urls) EIP712(name, "0.0.1") {
@@ -51,27 +50,13 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
     }
 
     /// @notice Get current session for Primary EOA
-    function getSession() public view returns (IForwardRequest.PlaySession memory) {
-        return _sessions[msg.sender];
+    function getSession(address authorizer) public view returns (IForwardRequest.PlaySession memory) {
+        return _sessions[authorizer];
     }
 
     /// @notice Allow `authorized` to use your NFTs in a game for `length` seconds. Your NFTs
     ///         will not be held in custody or approved for transfer.
     function createSession(address authorized, uint256 length) external {
-        _createSession(authorized, length);
-    }
-
-    /// @notice Allow `authorized` to use your NFTs in a game for `length` seconds through a
-    ///         signed message from the primary EOA
-    function createSignedSession(
-        bytes calldata signature,
-        address authorized,
-        uint256 length,
-        address sender
-    ) external onlyRole(ADMIN_ROLE) {
-        bytes32 message = keccak256(abi.encode(sender, length)).toEthSignedMessageHash();
-
-        require(message.recover(signature) == sender, "PlaySession signature invalid");
         _createSession(authorized, length);
     }
 
@@ -88,7 +73,7 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
     /// @dev For efficiency in PlaySession persistence and lookup, an EOA must authorize
     ///      itself
     function invalidateSession() external {
-        this.createSession(msg.sender, type(uint256).max);
+        this.createSession(msg.sender, type(uint32).max);
     }
 
     /// @notice Submit a meta-tx request and signature to check validity and receive
@@ -103,7 +88,13 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
             revert OffchainLookup(
                 address(this),
                 urls,
-                abi.encode(req.from, _nonces[req.from], req.nftContract, req.tokenId),
+                abi.encode(
+                    req.from,
+                    _nonces[req.from],
+                    req.nftContract,
+                    req.tokenId,
+                    _tokenNonces[req.nftContract][req.tokenId]
+                ),
                 this.executeWithProof.selector,
                 abi.encode(req, signature)
             );
@@ -124,24 +115,17 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
             (IForwardRequest.ForwardRequest, bytes)
         );
 
-        require(verifyOwnershipProof(req, response), "TestForwarder: ownership proof does not match request");
+        // verifies
         require(verifyRequest(req, signature), "TestForwarder: signature does not match request");
+        require(verifyOwnershipProof(req, response), "TestForwarder: ownership proof does not match request");
 
-        _nonces[req.from] = req.nonce + 1;
+        ++_nonces[req.from];
+        ++_tokenNonces[req.nftContract][req.tokenId];
 
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: 0}(
-            abi.encodePacked(req.data, req.authorizer)
-            // TODO: who should this be on behalf of?
-            // the second argument here will be _msgSender() on implementation contract
-            // we want any game achievements / ERC20 rewards to accrue to the primary
-            // EOA rather than the burner, so Primary EOA feels easiest?
-
-            // This _probably_ violates the spec. Not like anyone can stop us!
-            // Let's just remain cognizant of risk profile and ability to show
-            // validity of the request - if we pass BurnerPrimary EOA as,
-            // _msgSender we should be able to show historically whic Burner EOA
-            // actually signed those txs and that they were signed during a
-            // period when the Burner was authorized to use the Primary EOA's NFTs
+            // Implementation contracts must use EssentialERC2771Context.
+            // The trusted NFT data is available via _msgNFT()
+            abi.encodePacked(req.data, req.tokenId, req.nftContract, req.authorizer)
         );
 
         // Validate that the relayer has sent enough gas for the call.
@@ -157,7 +141,7 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
         returns (bool)
     {
         address signer = _hashTypedDataV4(
-            keccak256(abi.encode(_TYPEHASH, req.from, req.to, 0, req.gas, req.nonce, keccak256(req.data)))
+            keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
         ).recover(signature);
         return _nonces[req.from] == req.nonce && signer == req.from;
     }
