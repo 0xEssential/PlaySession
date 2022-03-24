@@ -49,13 +49,18 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
     }
 
     /// @notice Get current nonce for EOA
-    function getNonce(address from) public view returns (uint256) {
+    function getNonce(address from) external view returns (uint256) {
         return _nonces[from];
     }
 
     /// @notice Get current session for Primary EOA
-    function getSession(address authorizer) public view returns (IForwardRequest.PlaySession memory) {
+    function getSession(address authorizer) external view returns (IForwardRequest.PlaySession memory) {
         return _sessions[authorizer];
+    }
+
+    /// @notice Get current nonce for NFT
+    function getTokenNonce(address contractAddress, uint256 tokenId) external view returns (uint256) {
+        return _tokenNonces[contractAddress][tokenId];
     }
 
     /// @notice Allow `authorized` to use your NFTs in a game for `length` seconds. Your NFTs

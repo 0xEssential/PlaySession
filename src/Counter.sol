@@ -5,6 +5,7 @@ import "./EssentialERC2771Context.sol";
 
 contract Counter is EssentialERC2771Context {
     uint256 public totalCount;
+    mapping(address => uint256) public collectionCount;
     mapping(address => uint256) public count;
     mapping(address => mapping(uint256 => address)) internal registeredNFTs;
 
@@ -29,6 +30,7 @@ contract Counter is EssentialERC2771Context {
         unchecked {
             ++count[owner];
             ++totalCount;
+            ++collectionCount[nft.contractAddress];
         }
 
         emit Counted(nft.contractAddress, nft.tokenId, owner);
