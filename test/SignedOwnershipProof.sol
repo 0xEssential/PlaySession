@@ -16,6 +16,8 @@ contract SignedOwnershipProof {
     address private _ownershipSigner;
 
     mapping(address => IForwardRequest.PlaySession) internal _sessions;
+    mapping(address => uint256) internal _nonces;
+    mapping(address => mapping(uint256 => uint256)) internal _tokenNonces;
 
     /// @notice Construct message that _ownershipSigner must sign as ownership proof
     /// @dev The RPC server uses this view function to create the ownership proof
@@ -38,22 +40,25 @@ contract SignedOwnershipProof {
     /// @dev Ensures that _ownershipSigner signed a message containing (nftOwner OR authorized address, nonce, nftContract, tokenId)
     /// @param req structured data submitted by EOA making a meta-transaction request
     /// @param signature the signature proof created by the ownership signer EOA
-    function verifyOwnershipProof(IForwardRequest.ERC721ForwardRequest memory req, bytes memory signature)
+    function verifyOwnershipProof(IForwardRequest.ForwardRequest memory req, bytes memory signature)
         public
         view
         returns (bool)
     {
-        // Verifies that ownership proof signature is signed by _ownerShip signer
-        // and that the embedded owner has authorized req.from
+        // Verifies that ownership proof signature is signed by _ownershipSigner,
+        // that the encoded owner has authorized req.from, and that the encoded
+        // tokenNonce matches the current nonce.
         //
-        // Separately we must verify that the meta-tx signature also matches req.from
-        // and is signed by the EOA making the meta-transaction request.
+        // Previously we verified that ForwardRequest was signed by req.from.
+        // Ownership verification is simple to bypass with the open RPC API, but
+        // the PlaySession checks fail without direct authorization.
+        require(req.tokenNonce == _tokenNonces[req.nftContract][req.tokenId], "Token nonce inaccurate");
 
         IForwardRequest.PlaySession memory ps = _sessions[req.authorizer];
-        require(block.timestamp < ps.expiresAt, "Session Expired");
-        require(ps.authorized == req.from, "Signer not authorized");
+        require(ps.authorized == req.from, "Unauthorized");
+        require(block.timestamp < ps.expiresAt, "Expired");
 
-        bytes32 message = createMessage(req.authorizer, req.nonce, req.nftContract, req.tokenId, req.nftNonce)
+        bytes32 message = createMessage(req.authorizer, req.nonce, req.nftContract, req.tokenId, req.tokenNonce)
             .toEthSignedMessageHash();
 
         return message.recover(signature) == _ownershipSigner;

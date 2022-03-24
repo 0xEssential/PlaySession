@@ -1,5 +1,5 @@
 {
-  "address": "0x92DC1d875d1fAE8318E217F2E343982C1968E7b8",
+  "address": "0x8aAba576167E13E925AC2028626575e84326a1c1",
   "abi": [
     {
       "inputs": [
@@ -11,6 +11,31 @@
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "contractAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "counter",
+          "type": "address"
+        }
+      ],
+      "name": "Counted",
+      "type": "event"
     },
     {
       "inputs": [
@@ -82,48 +107,61 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
-  "transactionHash": "0xf6fd3a772684ee699d5e5a26c8cda184e0fadf695f54e3be104ae9c29f0733b0",
+  "transactionHash": "0x1f0774a9852f64406cbb03c1da7208139af0bc6a122dcba53d215f18c787a59a",
   "receipt": {
     "to": null,
     "from": "0xc102f76973f4890cAB1b5d1ed26F3623381983aF",
-    "contractAddress": "0x92DC1d875d1fAE8318E217F2E343982C1968E7b8",
-    "transactionIndex": 19,
-    "gasUsed": "287641",
-    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000100000000000000000000000000000000000000800000000080000000000100000000000000000000000000000000000000000000000000010000008080000000000000000000000000000000000100000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000004000000000000000000001000000000000000000000000000002100000000000000000000000000000000000000000000000000000000000000000000000100000",
-    "blockHash": "0xc076280b0015f53f8789484694f6cd5c8ddf5f8027028007ceb19678452830b9",
-    "transactionHash": "0xf6fd3a772684ee699d5e5a26c8cda184e0fadf695f54e3be104ae9c29f0733b0",
+    "contractAddress": "0x8aAba576167E13E925AC2028626575e84326a1c1",
+    "transactionIndex": 127,
+    "gasUsed": "341846",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000100000000000000000000000000000000000000800000000000000000000100000000000000000000000002000000000000000000000000010000000080000000000000000000000000000000000100000000000000000000000010000000000000000000200000000000000000000000000000000000000000000000000000000000004000000000000000000001000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000040000100000",
+    "blockHash": "0x7a55ab400d2f11466f69029cd383f07e2d3ef6a63db0cc65c035498d0a929762",
+    "transactionHash": "0x1f0774a9852f64406cbb03c1da7208139af0bc6a122dcba53d215f18c787a59a",
     "logs": [
       {
-        "transactionIndex": 19,
-        "blockNumber": 25471060,
-        "transactionHash": "0xf6fd3a772684ee699d5e5a26c8cda184e0fadf695f54e3be104ae9c29f0733b0",
+        "transactionIndex": 127,
+        "blockNumber": 26307619,
+        "transactionHash": "0x1f0774a9852f64406cbb03c1da7208139af0bc6a122dcba53d215f18c787a59a",
         "address": "0x0000000000000000000000000000000000001010",
         "topics": [
           "0x4dfe1bbbcf077ddc3e01291eea2d5c70c2b422b415d95645b9adcfd678cb1d63",
           "0x0000000000000000000000000000000000000000000000000000000000001010",
           "0x000000000000000000000000c102f76973f4890cab1b5d1ed26f3623381983af",
-          "0x000000000000000000000000de8da1ee512529b6c61fe7c769affc160308dea2"
+          "0x000000000000000000000000b79fad4ca981472442f53d16365fdf0305ffd8e9"
         ],
-        "data": "0x0000000000000000000000000000000000000000000000000024613e5a82d1a2000000000000000000000000000000000000000000000002af50caf2b753eac50000000000000000000000000000000000000000000005848d75bbe620aecb8c000000000000000000000000000000000000000000000002af2c69b45cd119230000000000000000000000000000000000000000000005848d9a1d247b319d2e",
-        "logIndex": 48,
-        "blockHash": "0xc076280b0015f53f8789484694f6cd5c8ddf5f8027028007ceb19678452830b9"
+        "data": "0x00000000000000000000000000000000000000000000000000309448f7ea6000000000000000000000000000000000000000000000000002adb45416e112704e0000000000000000000000000000000000000000000151af3fd761e36479d5d8000000000000000000000000000000000000000000000002ad83bfcde928104e0000000000000000000000000000000000000000000151af4007f62c5c6435d8",
+        "logIndex": 281,
+        "blockHash": "0x7a55ab400d2f11466f69029cd383f07e2d3ef6a63db0cc65c035498d0a929762"
       }
     ],
-    "blockNumber": 25471060,
-    "cumulativeGasUsed": "1685699",
+    "blockNumber": 26307619,
+    "cumulativeGasUsed": "10137239",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0x8329569A4e633b17e617F66EF4f3668C8a504d58"
+    "0x49B432fD47400F929608DA03211D28dfA1716210"
   ],
-  "numDeployments": 1,
-  "solcInputHash": "d9cd31552a58ec96a8ec078332e4b8f3",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trustedForwarder\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"count\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"increment\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"forwarder\",\"type\":\"address\"}],\"name\":\"isTrustedForwarder\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trustedForwarder\",\"type\":\"address\"}],\"name\":\"setTrustedForwarder\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/Counter.sol\":\"Counter\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":2000},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\"},\"src/Counter.sol\":{\"content\":\"//SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.9;\\n\\nimport \\\"./EssentialERC2771Context.sol\\\";\\n\\ncontract Counter is EssentialERC2771Context {\\n    mapping(address => uint256) public count;\\n    mapping(address => mapping(uint256 => bool)) internal registeredNFTs;\\n\\n    modifier onlyForwarder() {\\n        require(isTrustedForwarder(msg.sender), \\\"Counter:429\\\");\\n        _;\\n    }\\n\\n    constructor(address trustedForwarder) EssentialERC2771Context(trustedForwarder) {}\\n\\n    function increment() external onlyForwarder {\\n        count[_msgSender()] += 1;\\n    }\\n}\\n\",\"keccak256\":\"0x05846b2e44703d628e868b1f1fd8278a602341a402374c1f8ef62ab5fb198b4f\",\"license\":\"Unlicense\"},\"src/EssentialERC2771Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (metatx/ERC2771Context.sol)\\n\\npragma solidity ^0.8.9;\\n\\nimport \\\"@openzeppelin/contracts/utils/Context.sol\\\";\\n\\n/**\\n * @dev Context variant with ERC2771 support.\\n */\\nabstract contract EssentialERC2771Context is Context {\\n    address private _trustedForwarder;\\n    address public owner;\\n\\n    modifier onlyOwner() {\\n        require(msg.sender == owner, \\\"403\\\");\\n        _;\\n    }\\n\\n    constructor(address trustedForwarder) {\\n        owner = msg.sender;\\n        _trustedForwarder = trustedForwarder;\\n    }\\n\\n    function setTrustedForwarder(address trustedForwarder) external onlyOwner {\\n        _trustedForwarder = trustedForwarder;\\n    }\\n\\n    function isTrustedForwarder(address forwarder) public view virtual returns (bool) {\\n        return forwarder == _trustedForwarder;\\n    }\\n\\n    function _msgSender() internal view virtual override returns (address sender) {\\n        if (isTrustedForwarder(msg.sender)) {\\n            // The assembly code is more direct than the Solidity version using `abi.decode`.\\n            assembly {\\n                sender := shr(96, calldataload(sub(calldatasize(), 20)))\\n            }\\n        } else {\\n            return super._msgSender();\\n        }\\n    }\\n\\n    function _msgData() internal view virtual override returns (bytes calldata) {\\n        if (isTrustedForwarder(msg.sender)) {\\n            return msg.data[:msg.data.length - 20];\\n        } else {\\n            return super._msgData();\\n        }\\n    }\\n}\\n\",\"keccak256\":\"0x2c538303cd43e2c77ddb1a29393736f881d5e5296ebd25e9824e3d65dd54e950\",\"license\":\"MIT\"}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b5060405161040e38038061040e83398101604081905261002f91610062565b600180546001600160a01b03199081163317909155600080546001600160a01b0390931692909116919091179055610092565b60006020828403121561007457600080fd5b81516001600160a01b038116811461008b57600080fd5b9392505050565b61036d806100a16000396000f3fe608060405234801561001057600080fd5b50600436106100675760003560e01c80638da5cb5b116100505780638da5cb5b146100d1578063d09de08a146100fc578063da7422281461010657600080fd5b806305d85eda1461006c578063572b6c051461009f575b600080fd5b61008c61007a3660046102c8565b60026020526000908152604090205481565b6040519081526020015b60405180910390f35b6100c16100ad3660046102c8565b6000546001600160a01b0391821691161490565b6040519015158152602001610096565b6001546100e4906001600160a01b031681565b6040516001600160a01b039091168152602001610096565b610104610119565b005b6101046101143660046102c8565b6101d6565b6000546001600160a01b03163314610192576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600b60248201527f436f756e7465723a34323900000000000000000000000000000000000000000060448201526064015b60405180910390fd5b6001600260006101a0610284565b6001600160a01b03166001600160a01b0316815260200190815260200160002060008282546101cf91906102f8565b9091555050565b6001546001600160a01b0316331461024a576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600360248201527f34303300000000000000000000000000000000000000000000000000000000006044820152606401610189565b600080547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0392909216919091179055565b600080546001600160a01b03163314156102c357507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec36013560601c90565b503390565b6000602082840312156102da57600080fd5b81356001600160a01b03811681146102f157600080fd5b9392505050565b60008219821115610332577f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b50019056fea26469706673582212208b9d06030683c7a62ab8cd2e11ce2dcf0e9a8fd63f4d37a5cc442d5b23dda08d64736f6c63430008090033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100675760003560e01c80638da5cb5b116100505780638da5cb5b146100d1578063d09de08a146100fc578063da7422281461010657600080fd5b806305d85eda1461006c578063572b6c051461009f575b600080fd5b61008c61007a3660046102c8565b60026020526000908152604090205481565b6040519081526020015b60405180910390f35b6100c16100ad3660046102c8565b6000546001600160a01b0391821691161490565b6040519015158152602001610096565b6001546100e4906001600160a01b031681565b6040516001600160a01b039091168152602001610096565b610104610119565b005b6101046101143660046102c8565b6101d6565b6000546001600160a01b03163314610192576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600b60248201527f436f756e7465723a34323900000000000000000000000000000000000000000060448201526064015b60405180910390fd5b6001600260006101a0610284565b6001600160a01b03166001600160a01b0316815260200190815260200160002060008282546101cf91906102f8565b9091555050565b6001546001600160a01b0316331461024a576040517f08c379a000000000000000000000000000000000000000000000000000000000815260206004820152600360248201527f34303300000000000000000000000000000000000000000000000000000000006044820152606401610189565b600080547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0392909216919091179055565b600080546001600160a01b03163314156102c357507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec36013560601c90565b503390565b6000602082840312156102da57600080fd5b81356001600160a01b03811681146102f157600080fd5b9392505050565b60008219821115610332577f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b50019056fea26469706673582212208b9d06030683c7a62ab8cd2e11ce2dcf0e9a8fd63f4d37a5cc442d5b23dda08d64736f6c63430008090033",
+  "numDeployments": 3,
+  "solcInputHash": "64b5938ee90c62a7548004f6db2bba30",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trustedForwarder\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"contractAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"counter\",\"type\":\"address\"}],\"name\":\"Counted\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"count\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"increment\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"forwarder\",\"type\":\"address\"}],\"name\":\"isTrustedForwarder\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trustedForwarder\",\"type\":\"address\"}],\"name\":\"setTrustedForwarder\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/Counter.sol\":\"Counter\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":2000},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\"},\"src/Counter.sol\":{\"content\":\"//SPDX-License-Identifier: Unlicense\\npragma solidity ^0.8.9;\\n\\nimport \\\"./EssentialERC2771Context.sol\\\";\\n\\ncontract Counter is EssentialERC2771Context {\\n    uint256 public totalCount;\\n    mapping(address => uint256) public count;\\n    mapping(address => mapping(uint256 => address)) internal registeredNFTs;\\n\\n    event Counted(address indexed contractAddress, uint256 indexed tokenId, address indexed counter);\\n\\n    modifier onlyForwarder() {\\n        require(isTrustedForwarder(msg.sender), \\\"Counter:429\\\");\\n        _;\\n    }\\n\\n    constructor(address trustedForwarder) EssentialERC2771Context(trustedForwarder) {}\\n\\n    function increment() external onlyForwarder {\\n        IForwardRequest.NFT memory nft = _msgNFT();\\n\\n        require(registeredNFTs[nft.contractAddress][nft.tokenId] == address(0), \\\"NFT already counted\\\");\\n\\n        address owner = _msgSender();\\n\\n        registeredNFTs[nft.contractAddress][nft.tokenId] = owner;\\n\\n        unchecked {\\n            ++count[owner];\\n            ++totalCount;\\n        }\\n\\n        emit Counted(nft.contractAddress, nft.tokenId, owner);\\n    }\\n}\\n\",\"keccak256\":\"0x1a8b4dd009fc2d8646a6a39f99992bf5d3de660d744059316af626d9d0b5a9e1\",\"license\":\"Unlicense\"},\"src/EssentialERC2771Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (metatx/ERC2771Context.sol)\\n\\npragma solidity ^0.8.9;\\n\\nimport \\\"@openzeppelin/contracts/utils/Context.sol\\\";\\nimport \\\"./IForwardRequest.sol\\\";\\n\\n/**\\n * @dev Context variant with ERC2771 support.\\n */\\nabstract contract EssentialERC2771Context is Context {\\n    address private _trustedForwarder;\\n    address public owner;\\n\\n    modifier onlyOwner() {\\n        require(msg.sender == owner, \\\"403\\\");\\n        _;\\n    }\\n\\n    constructor(address trustedForwarder) {\\n        owner = msg.sender;\\n        _trustedForwarder = trustedForwarder;\\n    }\\n\\n    function setTrustedForwarder(address trustedForwarder) external onlyOwner {\\n        _trustedForwarder = trustedForwarder;\\n    }\\n\\n    function isTrustedForwarder(address forwarder) public view virtual returns (bool) {\\n        return forwarder == _trustedForwarder;\\n    }\\n\\n    function _msgSender() internal view virtual override returns (address sender) {\\n        if (isTrustedForwarder(msg.sender)) {\\n            // The assembly code is more direct than the Solidity version using `abi.decode`.\\n            assembly {\\n                sender := shr(0x60, calldataload(sub(calldatasize(), 20)))\\n            }\\n        } else {\\n            return super._msgSender();\\n        }\\n    }\\n\\n    function _msgData() internal view virtual override returns (bytes calldata) {\\n        if (isTrustedForwarder(msg.sender)) {\\n            return msg.data[:msg.data.length - 72];\\n        } else {\\n            return super._msgData();\\n        }\\n    }\\n\\n    function _msgNFT() internal view returns (IForwardRequest.NFT memory) {\\n        uint256 tokenId;\\n        address contractAddress;\\n        if (isTrustedForwarder(msg.sender)) {\\n            assembly {\\n                contractAddress := shr(0x60, calldataload(sub(calldatasize(), 40)))\\n                tokenId := calldataload(sub(calldatasize(), 72))\\n            }\\n        }\\n\\n        return IForwardRequest.NFT({contractAddress: contractAddress, tokenId: tokenId});\\n    }\\n}\\n\",\"keccak256\":\"0xfac024a149d7906fb2ed6ef5ec7ace495930bd1b13e62001878f791b5027c332\",\"license\":\"MIT\"},\"src/IForwardRequest.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.9;\\n\\ninterface IForwardRequest {\\n    struct ERC721ForwardRequest {\\n        address from; // Externally-owned account (EOA) signing the request.\\n        address authorizer; // Externally-owned account (EOA) that authorized from account in PlaySession.\\n        address to; // Destination address, normally a smart contract for an nFight game.\\n        address nftContract; // The ETH Mainnet address of the NFT contract for the token being used.\\n        uint256 nftNonce; // On-chain tracked nonce for the token being used.\\n        uint256 tokenId; // The tokenId of the ETH Mainnet NFT being used\\n        uint256 value; // Amount of ether to transfer to the destination.\\n        uint256 gas; // Amount of gas limit to set for the execution.\\n        uint256 nonce; // On-chain tracked nonce of a transaction.\\n        bytes data; // (Call)data to be sent to the destination.\\n    }\\n\\n    struct MetaTransaction {\\n        uint256 nonce;\\n        address from;\\n        bytes functionSignature;\\n    }\\n\\n    struct PlaySession {\\n        address authorized; // Burner EOA that is authorized to play with NFTs by owner EOA.\\n        uint256 expiresAt; // block timestamp when the session is invalidated.\\n    }\\n\\n    struct NFT {\\n        address contractAddress;\\n        uint256 tokenId;\\n    }\\n}\\n\",\"keccak256\":\"0x08791a277bee8bca9d25d8764e0206058b77959c38511f34fb8d400d11d811fd\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161050638038061050683398101604081905261002f91610062565b600180546001600160a01b03199081163317909155600080546001600160a01b0390931692909116919091179055610092565b60006020828403121561007457600080fd5b81516001600160a01b038116811461008b57600080fd5b9392505050565b610465806100a16000396000f3fe608060405234801561001057600080fd5b50600436106100725760003560e01c80638da5cb5b116100505780638da5cb5b146100e5578063d09de08a14610110578063da7422281461011a57600080fd5b806305d85eda1461007757806334eafb11146100aa578063572b6c05146100b3575b600080fd5b6100976100853660046103ff565b60036020526000908152604090205481565b6040519081526020015b60405180910390f35b61009760025481565b6100d56100c13660046103ff565b6000546001600160a01b0391821691161490565b60405190151581526020016100a1565b6001546100f8906001600160a01b031681565b6040516001600160a01b0390911681526020016100a1565b61011861012d565b005b6101186101283660046103ff565b6102c6565b6000546001600160a01b0316331461018c5760405162461bcd60e51b815260206004820152600b60248201527f436f756e7465723a34323900000000000000000000000000000000000000000060448201526064015b60405180910390fd5b600061019661035a565b80516001600160a01b03908116600090815260046020908152604080832082860151845290915290205491925016156102115760405162461bcd60e51b815260206004820152601360248201527f4e465420616c726561647920636f756e746564000000000000000000000000006044820152606401610183565b600061021b6103bb565b82516001600160a01b0390811660009081526004602090815260408083208288018051855290835281842080547fffffffffffffffffffffffff00000000000000000000000000000000000000001687871690811790915580855260039093528184208054600190810190915560028054909101905551875191519596509194919316917fe39cf6ce097c10dae6d67cc8b50f2e294be57dc01c496713b260b16300fbe42491a45050565b6001546001600160a01b031633146103205760405162461bcd60e51b815260206004820152600360248201527f34303300000000000000000000000000000000000000000000000000000000006044820152606401610183565b600080547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0392909216919091179055565b60408051808201909152600080825260208201526000805481906001600160a01b031633141561039657602836033560601c9050604836033591505b6040518060400160405280826001600160a01b03168152602001838152509250505090565b600080546001600160a01b03163314156103fa57507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec36013560601c90565b503390565b60006020828403121561041157600080fd5b81356001600160a01b038116811461042857600080fd5b939250505056fea2646970667358221220d61d39ac59b799c46bf23dcc51997acb502b28d8703b1bb2cb719d98319b352a64736f6c63430008090033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100725760003560e01c80638da5cb5b116100505780638da5cb5b146100e5578063d09de08a14610110578063da7422281461011a57600080fd5b806305d85eda1461007757806334eafb11146100aa578063572b6c05146100b3575b600080fd5b6100976100853660046103ff565b60036020526000908152604090205481565b6040519081526020015b60405180910390f35b61009760025481565b6100d56100c13660046103ff565b6000546001600160a01b0391821691161490565b60405190151581526020016100a1565b6001546100f8906001600160a01b031681565b6040516001600160a01b0390911681526020016100a1565b61011861012d565b005b6101186101283660046103ff565b6102c6565b6000546001600160a01b0316331461018c5760405162461bcd60e51b815260206004820152600b60248201527f436f756e7465723a34323900000000000000000000000000000000000000000060448201526064015b60405180910390fd5b600061019661035a565b80516001600160a01b03908116600090815260046020908152604080832082860151845290915290205491925016156102115760405162461bcd60e51b815260206004820152601360248201527f4e465420616c726561647920636f756e746564000000000000000000000000006044820152606401610183565b600061021b6103bb565b82516001600160a01b0390811660009081526004602090815260408083208288018051855290835281842080547fffffffffffffffffffffffff00000000000000000000000000000000000000001687871690811790915580855260039093528184208054600190810190915560028054909101905551875191519596509194919316917fe39cf6ce097c10dae6d67cc8b50f2e294be57dc01c496713b260b16300fbe42491a45050565b6001546001600160a01b031633146103205760405162461bcd60e51b815260206004820152600360248201527f34303300000000000000000000000000000000000000000000000000000000006044820152606401610183565b600080547fffffffffffffffffffffffff0000000000000000000000000000000000000000166001600160a01b0392909216919091179055565b60408051808201909152600080825260208201526000805481906001600160a01b031633141561039657602836033560601c9050604836033591505b6040518060400160405280826001600160a01b03168152602001838152509250505090565b600080546001600160a01b03163314156103fa57507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffec36013560601c90565b503390565b60006020828403121561041157600080fd5b81356001600160a01b038116811461042857600080fd5b939250505056fea2646970667358221220d61d39ac59b799c46bf23dcc51997acb502b28d8703b1bb2cb719d98319b352a64736f6c63430008090033",
   "devdoc": {
     "kind": "dev",
     "methods": {},
@@ -137,7 +175,7 @@
   "storageLayout": {
     "storage": [
       {
-        "astId": 1244,
+        "astId": 1298,
         "contract": "src/Counter.sol:Counter",
         "label": "_trustedForwarder",
         "offset": 0,
@@ -145,7 +183,7 @@
         "type": "t_address"
       },
       {
-        "astId": 1246,
+        "astId": 1300,
         "contract": "src/Counter.sol:Counter",
         "label": "owner",
         "offset": 0,
@@ -153,20 +191,28 @@
         "type": "t_address"
       },
       {
-        "astId": 1195,
+        "astId": 1039,
+        "contract": "src/Counter.sol:Counter",
+        "label": "totalCount",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1043,
         "contract": "src/Counter.sol:Counter",
         "label": "count",
         "offset": 0,
-        "slot": "2",
+        "slot": "3",
         "type": "t_mapping(t_address,t_uint256)"
       },
       {
-        "astId": 1201,
+        "astId": 1049,
         "contract": "src/Counter.sol:Counter",
         "label": "registeredNFTs",
         "offset": 0,
-        "slot": "3",
-        "type": "t_mapping(t_address,t_mapping(t_uint256,t_bool))"
+        "slot": "4",
+        "type": "t_mapping(t_address,t_mapping(t_uint256,t_address))"
       }
     ],
     "types": {
@@ -175,17 +221,12 @@
         "label": "address",
         "numberOfBytes": "20"
       },
-      "t_bool": {
-        "encoding": "inplace",
-        "label": "bool",
-        "numberOfBytes": "1"
-      },
-      "t_mapping(t_address,t_mapping(t_uint256,t_bool))": {
+      "t_mapping(t_address,t_mapping(t_uint256,t_address))": {
         "encoding": "mapping",
         "key": "t_address",
-        "label": "mapping(address => mapping(uint256 => bool))",
+        "label": "mapping(address => mapping(uint256 => address))",
         "numberOfBytes": "32",
-        "value": "t_mapping(t_uint256,t_bool)"
+        "value": "t_mapping(t_uint256,t_address)"
       },
       "t_mapping(t_address,t_uint256)": {
         "encoding": "mapping",
@@ -194,12 +235,12 @@
         "numberOfBytes": "32",
         "value": "t_uint256"
       },
-      "t_mapping(t_uint256,t_bool)": {
+      "t_mapping(t_uint256,t_address)": {
         "encoding": "mapping",
         "key": "t_uint256",
-        "label": "mapping(uint256 => bool)",
+        "label": "mapping(uint256 => address)",
         "numberOfBytes": "32",
-        "value": "t_bool"
+        "value": "t_address"
       },
       "t_uint256": {
         "encoding": "inplace",

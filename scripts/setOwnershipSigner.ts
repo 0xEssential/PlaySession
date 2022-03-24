@@ -1,12 +1,7 @@
 import 'dotenv/config';
 import '@nomiclabs/hardhat-ethers';
 import {ethers, getChainId} from 'hardhat';
-import {Counter, EssentialForwarder} from '../typechain';
-import {wrapContract} from '@0xessential/metassential';
-import {BigNumber, constants, Contract, Signer} from 'ethers';
-import {JsonRpcProvider} from '@ethersproject/providers';
-import {Web3Provider} from '@ethersproject/providers';
-import {Logger} from 'ethers/lib/utils';
+import {EssentialForwarder} from '../typechain';
 
 async function main() {
   const [owner] = await ethers.getSigners();
@@ -14,7 +9,7 @@ async function main() {
     (id) =>
       ({
         80001: 'mumbai',
-        // 137: 'matic',
+        137: 'matic',
       }[id])
   );
   console.warn(networkName);

@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
+import "./EssentialEIP712Base.sol";
 import "./SignedOwnershipProof.sol";
 import "./IForwardRequest.sol";
 
@@ -19,7 +19,7 @@ import "./IForwardRequest.sol";
 ///      End users can specify a Burner EOA from their primary EOA, and then use that burner address to play games.
 ///      The Burner EOA can then sign messages for game moves without user interaction without any risk to the NFTs or other
 ///      assets owned by the primary EOA.
-contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
+contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipProof {
     using ECDSA for bytes32;
 
     event Session(address indexed owner, address indexed authorized, uint256 indexed length);
@@ -27,12 +27,16 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    bytes32 private constant _TYPEHASH =
-        keccak256("ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data)");
+    bytes32 private constant ERC721_TYPEHASH =
+        keccak256(
+            "ForwardRequest(address to,address from,address authorizer,address nftContract,uint256 nonce,uint256 nftNonce,uint256 tokenId,bytes data)"
+        );
+    mapping(address => uint256) internal _nonces;
+    mapping(address => mapping(uint256 => uint256)) internal _tokenNonces;
 
     string[] public urls;
 
-    constructor(string memory name, string[] memory _urls) EIP712(name, "0.0.1") {
+    constructor(string memory name, string[] memory _urls) EssentialEIP712(name, "0.0.1") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ADMIN_ROLE, msg.sender);
         _setOwnershipSigner(msg.sender);
@@ -60,6 +64,21 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
         _createSession(authorized, length);
     }
 
+    /// @notice Allow `authorized` to use your NFTs in a game for `length` seconds through a
+    ///         signed message from the primary EOA
+    /// @dev TODO
+    // function createSignedSession(
+    //     bytes calldata signature,
+    //     address authorized,
+    //     uint256 length,
+    //     address sender
+    // ) external onlyRole(ADMIN_ROLE) {
+    //     bytes32 message = keccak256(abi.encode(sender, length)).toEthSignedMessageHash();
+
+    //     require(message.recover(signature) == sender, "PlaySession signature invalid");
+    //     _createSession(authorized, length);
+    // }
+
     function _createSession(address authorized, uint256 length) internal {
         _sessions[msg.sender] = IForwardRequest.PlaySession({
             authorized: authorized,
@@ -73,13 +92,13 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
     /// @dev For efficiency in PlaySession persistence and lookup, an EOA must authorize
     ///      itself
     function invalidateSession() external {
-        this.createSession(msg.sender, type(uint32).max);
+        this.createSession(msg.sender, type(uint256).max);
     }
 
     /// @notice Submit a meta-tx request and signature to check validity and receive
     ///         a response with data useful for fetching a trusted proof per EIP-3668.
     /// @dev Per EIP-3668, a valid signature will cause a revert with useful error params.
-    function preflight(IForwardRequest.ForwardRequest calldata req, bytes calldata signature) public view {
+    function preflight(IForwardRequest.ERC721ForwardRequest calldata req, bytes calldata signature) public view {
         // If the signature is valid for the request and state, the client will receive
         // the OffchainLookup error with parameters suitable for an https call to a JSON
         // RPC server.
@@ -110,14 +129,14 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
         payable
         returns (bool, bytes memory)
     {
-        (IForwardRequest.ForwardRequest memory req, bytes memory signature) = abi.decode(
+        (IForwardRequest.ERC721ForwardRequest memory req, bytes memory signature) = abi.decode(
             extraData,
-            (IForwardRequest.ForwardRequest, bytes)
+            (IForwardRequest.ERC721ForwardRequest, bytes)
         );
 
         // verifies
-        require(verifyRequest(req, signature), "TestForwarder: signature does not match request");
-        require(verifyOwnershipProof(req, response), "TestForwarder: ownership proof does not match request");
+        require(verifyOwnershipProof(req, response), "EssentialForwarder: ownership proof does not match request");
+        require(verifyRequest(req, signature), "EssentialForwarder: signature does not match request");
 
         ++_nonces[req.from];
         ++_tokenNonces[req.nftContract][req.tokenId];
@@ -135,14 +154,58 @@ contract EssentialForwarder is EIP712, AccessControl, SignedOwnershipProof {
         return (success, returndata);
     }
 
-    function verifyRequest(IForwardRequest.ForwardRequest memory req, bytes memory signature)
+    /// @notice Submit a meta-tx request where a proof of ownership is not required.
+    /// @dev Useful for transactions where the signer is not using a specific NFT, but values
+    /// are still required in the signature - use the zero address for nftContract and 0 for tokenId
+    function verify(IForwardRequest.ERC721ForwardRequest calldata req, bytes calldata signature)
+        public
+        view
+        returns (bool)
+    {
+        return verifyRequest(req, signature);
+    }
+
+    function execute(IForwardRequest.ERC721ForwardRequest calldata req, bytes calldata signature)
+        public
+        payable
+        returns (bool, bytes memory)
+    {
+        require(verify(req, signature), "MinimalForwarder: signature does not match request");
+        _nonces[req.from] = req.nonce + 1;
+
+        (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(
+            abi.encodePacked(req.data, uint256(0), address(0), req.from)
+        );
+
+        // Validate that the relayer has sent enough gas for the call.
+        // See https://ronan.eth.link/blog/ethereum-gas-dangers/
+        assert(gasleft() > req.gas / 63);
+
+        return (success, returndata);
+    }
+
+    function verifyRequest(IForwardRequest.ERC721ForwardRequest memory req, bytes memory signature)
         internal
         view
         returns (bool)
     {
         address signer = _hashTypedDataV4(
-            keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
+            keccak256(
+                abi.encode(
+                    ERC721_TYPEHASH,
+                    req.to,
+                    req.from,
+                    req.authorizer,
+                    req.nftContract,
+                    req.nonce,
+                    req.nftNonce,
+                    req.tokenId,
+                    keccak256(req.data)
+                )
+            )
         ).recover(signature);
+        // TODO: tokenNonce check?
+        // && req.nftNonce == _tokenNonces[req.nftContract][req.tokenId]
         return _nonces[req.from] == req.nonce && signer == req.from;
     }
 }
