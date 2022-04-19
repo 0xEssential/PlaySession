@@ -29,10 +29,9 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
 
     bytes32 private constant ERC721_TYPEHASH =
         keccak256(
-            "ForwardRequest(address to,address from,address authorizer,address nftContract,uint256 nonce,uint256 nftNonce,uint256 tokenId,bytes data)"
+            "ForwardRequest(address to,address from,address authorizer,address nftContract,uint256 nonce,uint256 nftChainId,uint256 nftTokenId,uint256 targetChainId,bytes data)"
         );
     mapping(address => uint256) internal _nonces;
-    mapping(address => mapping(uint256 => uint256)) internal _tokenNonces;
 
     string[] public urls;
 
@@ -56,11 +55,6 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
     /// @notice Get current session for Primary EOA
     function getSession(address authorizer) external view returns (IForwardRequest.PlaySession memory) {
         return _sessions[authorizer];
-    }
-
-    /// @notice Get current nonce for NFT
-    function getTokenNonce(address contractAddress, uint256 tokenId) external view returns (uint256) {
-        return _tokenNonces[contractAddress][tokenId];
     }
 
     /// @notice Allow `authorized` to use your NFTs in a game for `length` seconds. Your NFTs
@@ -114,15 +108,19 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
                 urls,
                 abi.encode(
                     req.from,
+                    req.authorizer,
                     _nonces[req.from],
+                    req.nftChainId,
                     req.nftContract,
-                    req.tokenId,
-                    _tokenNonces[req.nftContract][req.tokenId]
+                    req.nftTokenId,
+                    req.targetChainId,
+                    block.timestamp
                 ),
                 this.executeWithProof.selector,
-                abi.encode(req, signature)
+                abi.encode(block.timestamp, req, signature)
             );
         }
+        revert("Signature invalid");
     }
 
     /// @notice Re-submit a valid meta-tx request with trusted proof to execute the transaction.
@@ -134,22 +132,25 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
         payable
         returns (bool, bytes memory)
     {
-        (IForwardRequest.ERC721ForwardRequest memory req, bytes memory signature) = abi.decode(
+        (uint256 timestamp, IForwardRequest.ERC721ForwardRequest memory req, bytes memory signature) = abi.decode(
             extraData,
-            (IForwardRequest.ERC721ForwardRequest, bytes)
+            (uint256, IForwardRequest.ERC721ForwardRequest, bytes)
         );
 
         // verifies
-        require(verifyOwnershipProof(req, response), "EssentialForwarder: ownership proof does not match request");
+        // TODO: add PlaySession verification as it has been removed from
+        require(
+            verifyOwnershipProof(req, response, timestamp),
+            "EssentialForwarder: ownership proof does not match request"
+        );
         require(verifyRequest(req, signature), "EssentialForwarder: signature does not match request");
 
         ++_nonces[req.from];
-        ++_tokenNonces[req.nftContract][req.tokenId];
 
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: 0}(
             // Implementation contracts must use EssentialERC2771Context.
             // The trusted NFT data is available via _msgNFT()
-            abi.encodePacked(req.data, req.tokenId, req.nftContract, req.authorizer)
+            abi.encodePacked(req.data, req.nftTokenId, req.nftContract, req.authorizer)
         );
 
         // Validate that the relayer has sent enough gas for the call.
@@ -203,14 +204,13 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
                     req.authorizer,
                     req.nftContract,
                     req.nonce,
-                    req.nftNonce,
-                    req.tokenId,
+                    req.nftChainId,
+                    req.nftTokenId,
+                    req.targetChainId,
                     keccak256(req.data)
                 )
             )
         ).recover(signature);
-        // TODO: tokenNonce check?
-        // && req.nftNonce == _tokenNonces[req.nftContract][req.tokenId]
         return _nonces[req.from] == req.nonce && signer == req.from;
     }
 }

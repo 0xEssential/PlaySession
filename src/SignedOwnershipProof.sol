@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./IForwardRequest.sol";
+import "./EssentialEIP712Base.sol" as EssentialEIP712Base;
 
 /// @title SignedOwnershipProof
 /// @author Sammy Bauch
@@ -19,42 +20,51 @@ contract SignedOwnershipProof {
 
     /// @notice Construct message that _ownershipSigner must sign as ownership proof
     /// @dev The RPC server uses this view function to create the ownership proof
-    /// @param nftOwner the address that currently owns the L1 NFT
+    /// @param signer the address that currently owns the L1 NFT
+    /// @param authorizer the address that currently owns the L1 NFT
     /// @param nonce the meta-transaction nonce for account
+    /// @param nftChainId the tokenId from nftContract for the NFT being utilized
     /// @param nftContract the mainnet contract address for the NFT being utilized
     /// @param tokenId the tokenId from nftContract for the NFT being utilized
+    /// @param timestamp the tokenId from nftContract for the NFT being utilized
     /// @return the message _ownershipSigner should sign
     function createMessage(
-        address nftOwner,
+        address signer,
+        address authorizer,
         uint256 nonce,
+        uint256 nftChainId,
         address nftContract,
         uint256 tokenId,
-        uint256 tokenNonce
-    ) public pure returns (bytes32) {
-        return keccak256(abi.encode(nftOwner, nonce, nftContract, tokenId, tokenNonce));
+        uint256 timestamp
+    ) public view returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(signer, authorizer, nonce, nftChainId, nftContract, tokenId, block.chainid, timestamp)
+            );
     }
 
     /// @notice Verify signed OffchainLookup proof against meta-tx request data
     /// @dev Ensures that _ownershipSigner signed a message containing (nftOwner OR authorized address, nonce, nftContract, tokenId)
     /// @param req structured data submitted by EOA making a meta-transaction request
     /// @param signature the signature proof created by the ownership signer EOA
-    function verifyOwnershipProof(IForwardRequest.ERC721ForwardRequest memory req, bytes memory signature)
-        public
-        view
-        returns (bool)
-    {
+    function verifyOwnershipProof(
+        IForwardRequest.ERC721ForwardRequest memory req,
+        bytes memory signature,
+        uint256 timestamp
+    ) public view returns (bool) {
+        // TODO: what are the drift requirements here?
+        require(block.timestamp < timestamp + 10, "Stale");
+
         // Verifies that ownership proof signature is signed by _ownerShip signer
-        // and that the embedded owner has authorized req.from
-        //
-        // Separately we must verify that the meta-tx signature also matches req.from
-        // and is signed by the EOA making the meta-transaction request.
-
-        IForwardRequest.PlaySession memory ps = _sessions[req.authorizer];
-        require(block.timestamp < ps.expiresAt, "Session Expired");
-        require(ps.authorized == req.from, "Signer not authorized");
-
-        bytes32 message = createMessage(req.authorizer, req.nonce, req.nftContract, req.tokenId, req.nftNonce)
-            .toEthSignedMessageHash();
+        bytes32 message = createMessage(
+            req.from,
+            req.authorizer,
+            req.nonce,
+            req.nftChainId,
+            req.nftContract,
+            req.nftTokenId,
+            timestamp
+        ).toEthSignedMessageHash();
 
         return message.recover(signature) == _ownershipSigner;
     }

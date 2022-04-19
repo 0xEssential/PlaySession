@@ -7,9 +7,10 @@ interface IForwardRequest {
         address from; // Externally-owned account (EOA) signing the request.
         address authorizer; // Externally-owned account (EOA) that authorized from account in PlaySession.
         address to; // Destination address, normally a smart contract for an nFight game.
-        address nftContract; // The ETH Mainnet address of the NFT contract for the token being used.
-        uint256 nftNonce; // On-chain tracked nonce for the token being used.
-        uint256 tokenId; // The tokenId of the ETH Mainnet NFT being used
+        address nftContract; // The address of the NFT contract for the token being used.
+        uint256 nftTokenId; // The tokenId of the NFT being used
+        uint256 nftChainId; // The chainId of the NFT neing used
+        uint256 targetChainId; // The chainId where the Forwarder and implementation contract are deployed.
         uint256 value; // Amount of ether to transfer to the destination.
         uint256 gas; // Amount of gas limit to set for the execution.
         uint256 nonce; // On-chain tracked nonce of a transaction.
