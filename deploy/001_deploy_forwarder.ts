@@ -18,9 +18,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const {deployer} = await getNamedAccounts();
 
+  const ownershipApiUrl =
+    networkName == 'matic' ? 'https://middleware.nfight.xyz' : 'https://testnet-ownership-rpc.herokuapp.com/';
+
   await deploy('EssentialForwarder', {
     from: deployer,
-    args: ['0xEssential PlaySession', ['https://middleware.nfight.xyz']],
+    args: ['0xEssential PlaySession', [ownershipApiUrl]],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });

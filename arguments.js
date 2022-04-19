@@ -1,1 +1,1 @@
-module.exports = ['0xEssential PlaySession', ['https://middleware.nfight.xyz']];
+module.exports = ['0xEssential PlaySession', ['https://testnet-ownership-rpc.herokuapp.com/']];
