@@ -11,11 +11,6 @@ contract Counter is EssentialERC2771Context {
 
     event Counted(address indexed contractAddress, uint256 indexed tokenId, address indexed counter);
 
-    modifier onlyForwarder() {
-        require(isTrustedForwarder(msg.sender), "Counter:429");
-        _;
-    }
-
     constructor(address trustedForwarder) EssentialERC2771Context(trustedForwarder) {}
 
     function increment() external onlyForwarder {
@@ -28,8 +23,8 @@ contract Counter is EssentialERC2771Context {
         registeredNFTs[nft.contractAddress][nft.tokenId] = owner;
 
         unchecked {
-            ++count[owner];
             ++totalCount;
+            ++count[owner];
             ++collectionCount[nft.contractAddress];
         }
 

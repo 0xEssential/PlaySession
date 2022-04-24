@@ -18,6 +18,11 @@ abstract contract EssentialERC2771Context is Context {
         _;
     }
 
+    modifier onlyForwarder() {
+        require(isTrustedForwarder(msg.sender), "Counter:429");
+        _;
+    }
+
     constructor(address trustedForwarder) {
         owner = msg.sender;
         _trustedForwarder = trustedForwarder;

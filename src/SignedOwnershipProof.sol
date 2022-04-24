@@ -53,7 +53,6 @@ contract SignedOwnershipProof {
         // TODO: what are the drift requirements here?
         require(block.timestamp - timestamp < 10 minutes, "Stale");
 
-        // Verifies that ownership proof signature is signed by _ownerShip signer
         bytes32 message = createMessage(
             req.from,
             req.authorizer,

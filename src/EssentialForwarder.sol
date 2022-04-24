@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./EssentialEIP712Base.sol";
 import "./SignedOwnershipProof.sol";
 import "./IForwardRequest.sol";
+import "./IEssentialPlaySession.sol";
 
 /// @title EssentialForwarder
 /// @author 0xEssential
@@ -24,10 +25,10 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
 
     event Session(address indexed owner, address indexed authorized, uint256 indexed length);
 
-    error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData);
     error Unauthorized();
     error InvalidSignature();
     error InvalidOwnership();
+    error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData);
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
@@ -40,6 +41,7 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
     mapping(address => IForwardRequest.PlaySession) internal _sessions;
 
     string[] public urls;
+    IEssentialPlaySession public PlaySession;
 
     constructor(string memory name, string[] memory _urls) EssentialEIP712(name, "0.0.1") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -53,6 +55,11 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
         _setOwnershipSigner(newSigner);
     }
 
+    /// @notice Change the PlaySession source
+    function setPlaySessionOperator(address playSession) external onlyRole(ADMIN_ROLE) {
+        PlaySession = IEssentialPlaySession(playSession);
+    }
+
     /// @notice Get current nonce for EOA
     function getNonce(address from) external view returns (uint256) {
         return _nonces[from];
@@ -60,79 +67,47 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
 
     /// @notice Get current session for Primary EOA
     function getSession(address authorizer) external view returns (IForwardRequest.PlaySession memory) {
-        return _sessions[authorizer];
+        return PlaySession.getSession(authorizer);
     }
 
     /// @notice Allow `authorized` to use your NFTs in a game for `length` seconds. Your NFTs
     ///         will not be held in custody or approved for transfer.
     function createSession(address authorized, uint256 length) external {
-        _createSession(authorized, length);
-    }
-
-    /// @notice Allow `authorized` to use your NFTs in a game for `length` seconds through a
-    ///         signed message from the primary EOA
-    /// @dev TODO
-    // function createSignedSession(
-    //     bytes calldata signature,
-    //     address authorized,
-    //     uint256 length,
-    //     address sender
-    // ) external onlyRole(ADMIN_ROLE) {
-    //     bytes32 message = keccak256(abi.encode(sender, length)).toEthSignedMessageHash();
-
-    //     require(message.recover(signature) == sender, "PlaySession signature invalid");
-    //     _createSession(authorized, length);
-    // }
-
-    function _createSession(address authorized, uint256 length) internal {
-        _sessions[msg.sender] = IForwardRequest.PlaySession({
-            authorized: authorized,
-            expiresAt: block.timestamp + length
-        });
-
-        emit Session(msg.sender, authorized, length);
-    }
-
-    /// @notice Stop allowing your current authorized burner address to use your NFTs.
-    /// @dev For efficiency in PlaySession persistence and lookup, an EOA must authorize
-    ///      itself
-    function invalidateSession() external {
-        this.createSession(msg.sender, type(uint256).max);
+        PlaySession.createSession(authorized, length);
     }
 
     /// @notice Submit a meta-tx request and signature to check validity and receive
-    ///         a response with data useful for fetching a trusted proof per EIP-3668.
+    /// a response with data useful for fetching a trusted proof per EIP-3668.
     /// @dev Per EIP-3668, a valid signature will cause a revert with useful error params.
     function preflight(IForwardRequest.ERC721ForwardRequest calldata req, bytes calldata signature) public view {
         // If the signature is valid for the request and state, the client will receive
         // the OffchainLookup error with parameters suitable for an https call to a JSON
         // RPC server.
 
-        if (verifyRequest(req, signature)) {
-            revert OffchainLookup(
-                address(this),
-                urls,
-                abi.encode(
-                    req.from,
-                    req.authorizer,
-                    _nonces[req.from],
-                    req.nftChainId,
-                    req.nftContract,
-                    req.nftTokenId,
-                    req.targetChainId,
-                    block.timestamp
-                ),
-                this.executeWithProof.selector,
-                abi.encode(block.timestamp, req, signature)
-            );
-        }
-        revert InvalidSignature();
+        if (!verify(req, signature)) revert InvalidSignature();
+
+        revert OffchainLookup(
+            address(this),
+            urls,
+            abi.encode(
+                req.from,
+                req.authorizer,
+                _nonces[req.from],
+                req.nftChainId,
+                req.nftContract,
+                req.nftTokenId,
+                block.chainid,
+                block.timestamp
+            ),
+            this.executeWithProof.selector,
+            abi.encode(block.timestamp, req, signature)
+        );
     }
 
-    /// @notice Re-submit a valid meta-tx request with trusted proof to execute the transaction.
+    /// @notice Re-submit a valid meta-tx request with trust-minimized proof to execute the transaction.
     /// @dev The RPC call and re-submission should be handled by your Relayer client
-    /// @param response The unaltered bytes reponse from a call made to an RPC based on OffchainLookup args
-    /// @param extraData The unaltered bytes in the OffchainLookup extraData error arg
+    /// @param response The unaltered bytes reponse from a call made to an RPC url from OffchainLookup::urls
+    /// @param extraData The unaltered bytes from OffchainLookup::extraData
     function executeWithProof(bytes calldata response, bytes calldata extraData)
         external
         payable
@@ -143,19 +118,15 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
             (uint256, IForwardRequest.ERC721ForwardRequest, bytes)
         );
 
-        // if (!verifyAuthorization(req)) revert Unauthorized();
-        // if (!verifyOwnershipProof(req, response, timestamp)) revert InvalidOwnership();
-        // if (!verifyRequest(req, signature)) revert InvalidSignature();
-
-        require(verifyAuthorization(req), "unverified");
-        require(verifyOwnershipProof(req, response, timestamp), "bad ownership");
-        require(verifyRequest(req, signature), "bad sig");
+        if (!verifyAuthorization(req)) revert Unauthorized();
+        if (!verifyOwnershipProof(req, response, timestamp)) revert InvalidOwnership();
+        if (!verifyRequest(req, signature)) revert InvalidSignature();
 
         ++_nonces[req.from];
 
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: 0}(
-            // Implementation contracts must use EssentialERC2771Context.
-            // The trusted NFT data is available via _msgNFT()
+            // Implementation contracts may use EssentialERC2771Context::_msgNFT()
+            // to access trusted NFT data. Calldata is compatible with OZ::_msgSender()
             abi.encodePacked(req.data, req.nftTokenId, req.nftContract, req.authorizer)
         );
 
@@ -222,7 +193,6 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
 
     function verifyAuthorization(IForwardRequest.ERC721ForwardRequest memory req) internal view returns (bool) {
         if (req.authorizer == req.from) return true;
-        return
-            _sessions[req.authorizer].authorized == req.from && _sessions[req.authorizer].expiresAt >= block.timestamp;
+        return PlaySession.verifyAuthorization(req);
     }
 }
