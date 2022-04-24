@@ -16,8 +16,6 @@ contract SignedOwnershipProof {
     // address used to sign proof of ownership
     address private _ownershipSigner;
 
-    mapping(address => IForwardRequest.PlaySession) internal _sessions;
-
     /// @notice Construct message that _ownershipSigner must sign as ownership proof
     /// @dev The RPC server uses this view function to create the ownership proof
     /// @param signer the address that currently owns the L1 NFT
@@ -53,7 +51,7 @@ contract SignedOwnershipProof {
         uint256 timestamp
     ) public view returns (bool) {
         // TODO: what are the drift requirements here?
-        require(block.timestamp < timestamp + 10, "Stale");
+        require(block.timestamp - timestamp < 10 minutes, "Stale");
 
         // Verifies that ownership proof signature is signed by _ownerShip signer
         bytes32 message = createMessage(

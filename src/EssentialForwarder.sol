@@ -23,7 +23,11 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
     using ECDSA for bytes32;
 
     event Session(address indexed owner, address indexed authorized, uint256 indexed length);
+
     error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData);
+    error Unauthorized();
+    error InvalidSignature();
+    error InvalidOwnership();
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
@@ -31,7 +35,9 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
         keccak256(
             "ForwardRequest(address to,address from,address authorizer,address nftContract,uint256 nonce,uint256 nftChainId,uint256 nftTokenId,uint256 targetChainId,bytes data)"
         );
+
     mapping(address => uint256) internal _nonces;
+    mapping(address => IForwardRequest.PlaySession) internal _sessions;
 
     string[] public urls;
 
@@ -120,7 +126,7 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
                 abi.encode(block.timestamp, req, signature)
             );
         }
-        revert("Signature invalid");
+        revert InvalidSignature();
     }
 
     /// @notice Re-submit a valid meta-tx request with trusted proof to execute the transaction.
@@ -137,13 +143,13 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
             (uint256, IForwardRequest.ERC721ForwardRequest, bytes)
         );
 
-        // verifies
-        // TODO: add PlaySession verification as it has been removed from
-        require(
-            verifyOwnershipProof(req, response, timestamp),
-            "EssentialForwarder: ownership proof does not match request"
-        );
-        require(verifyRequest(req, signature), "EssentialForwarder: signature does not match request");
+        // if (!verifyAuthorization(req)) revert Unauthorized();
+        // if (!verifyOwnershipProof(req, response, timestamp)) revert InvalidOwnership();
+        // if (!verifyRequest(req, signature)) revert InvalidSignature();
+
+        require(verifyAuthorization(req), "unverified");
+        require(verifyOwnershipProof(req, response, timestamp), "bad ownership");
+        require(verifyRequest(req, signature), "bad sig");
 
         ++_nonces[req.from];
 
@@ -211,6 +217,12 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
                 )
             )
         ).recover(signature);
-        return _nonces[req.from] == req.nonce && signer == req.from;
+        return _nonces[req.from] == req.nonce && signer == req.from && req.targetChainId == block.chainid;
+    }
+
+    function verifyAuthorization(IForwardRequest.ERC721ForwardRequest memory req) internal view returns (bool) {
+        if (req.authorizer == req.from) return true;
+        return
+            _sessions[req.authorizer].authorized == req.from && _sessions[req.authorizer].expiresAt >= block.timestamp;
     }
 }
