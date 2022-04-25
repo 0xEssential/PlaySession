@@ -119,8 +119,8 @@ contract EssentialForwarder is EssentialEIP712, AccessControl, SignedOwnershipPr
         );
 
         if (!verifyAuthorization(req)) revert Unauthorized();
-        if (!verifyOwnershipProof(req, response, timestamp)) revert InvalidOwnership();
         if (!verifyRequest(req, signature)) revert InvalidSignature();
+        if (!verifyOwnershipProof(req, response, timestamp)) revert InvalidOwnership();
 
         ++_nonces[req.from];
 

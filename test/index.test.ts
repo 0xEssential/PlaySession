@@ -12,6 +12,10 @@ const deployContracts = async () => {
   const forwarder = await Forwarder.deploy(NAME, ['http://localhost:8000']);
   await forwarder.deployed();
 
+  const PlaySession = await ethers.getContractFactory('EssentialPlaySession');
+  const playSession = await PlaySession.deploy(forwarder.address);
+  await playSession.deployed();
+
   const Counter = await ethers.getContractFactory('Counter');
   const counter = await Counter.deploy(forwarder.address);
   await counter.deployed();
@@ -41,11 +45,43 @@ const deployContracts = async () => {
     user.wrappedCounter = wrappedCounter;
   });
 
+  await users[0].forwarder.setPlaySessionOperator(playSession.address);
+
   return {
     counter,
     forwarder,
     users,
   };
+};
+
+const handleOffchainLookup = async (match: RegExpMatchArray, relayer: any, forwarder: any, account: any) => {
+  const [_sender, _urls, callData, callbackFunction, extraData] = match[1]
+    .split(', ')
+    .map((s) => (s.startsWith('[') ? JSON.parse(s.substring(1, s.length - 1)) : JSON.parse(s)));
+
+  const abi = new ethers.utils.AbiCoder();
+  const [from, authorizer, nonce, nftChainId, nftContract, tokenId, targetChainId, timestamp] = abi.decode(
+    ['address', 'address', 'uint256', 'uint256', 'address', 'uint256', 'uint256', 'uint256'],
+    callData
+  );
+
+  const message = await relayer.forwarder.createMessage(
+    from,
+    authorizer,
+    nonce,
+    nftChainId,
+    nftContract,
+    tokenId,
+    timestamp
+  );
+
+  const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
+  const tx = await relayer.forwarder.signer.sendTransaction({
+    to: forwarder.address,
+    data: ethers.utils.hexConcat([callbackFunction, abi.encode(['bytes', 'bytes'], [proof, extraData])]),
+  });
+
+  await tx.wait();
 };
 
 describe.only('Counter', function () {
@@ -74,7 +110,7 @@ describe.only('Counter', function () {
     expect(await counter.count(account.address)).to.equal(0);
   });
 
-  describe('increment', async () => {
+  describe('count', async () => {
     before(async () => {
       fixtures = await deployContracts();
     });
@@ -94,42 +130,28 @@ describe.only('Counter', function () {
         users: [relayer, account, nftContract],
       } = fixtures;
 
-      const {signature, request} = await account.wrappedCounter.increment(
-        nftContract.address,
-        BigNumber.from(411),
-        account.address
+      const data = account.counter.interface.encodeFunctionData('increment');
+
+      const {signature, request} = await signMetaTxRequest(
+        account.counter.provider,
+        31337,
+        {
+          to: account.counter.address,
+          from: account.address,
+          authorizer: account.address,
+          nftContract: nftContract.address,
+          nftChainId: '1',
+          nftTokenId: '1',
+          targetChainId: '31337',
+          data,
+        },
+        Object.assign(account.forwarder, {name: NAME})
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
         if (match) {
-          const [_sender, _urls, callData, callbackFunction, extraData] = match[1]
-            .split(', ')
-            .map((s) => (s.startsWith('[') ? JSON.parse(s.substring(1, s.length - 1)) : JSON.parse(s)));
-
-          // JSON RPC Provider would now look up the current owner and sign it
-          // console.log(`${urls}/gateway/${sender}/${callData}`);
-
-          // decode the bytes
-          const abi = new ethers.utils.AbiCoder();
-          const [from, nonce, _nftContract, tokenId, tokenNonce] = abi.decode(
-            ['address', 'uint256', 'address', 'uint256', 'uint256'],
-            callData
-          );
-
-          // lookup current owner on mainnet
-          const message = await relayer.forwarder.createMessage(from, nonce, _nftContract, tokenId, tokenNonce);
-
-          const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
-
-          // response = json_rpc_call(url, 'durin_call', {'to': forwarder.address, 'data': calldata, 'abi': abi})
-
-          const tx = await relayer.forwarder.signer.sendTransaction({
-            to: forwarder.address,
-            data: ethers.utils.hexConcat([callbackFunction, abi.encode(['bytes', 'bytes'], [proof, extraData])]),
-          });
-
-          await tx.wait();
+          await handleOffchainLookup(match, relayer, forwarder, account);
 
           const count = await counter.count(account.address);
 
@@ -159,51 +181,29 @@ describe.only('Counter', function () {
         users: [relayer, account, nftContract, burner],
       } = fixtures;
 
-      const {signature, request} = await burner.wrappedCounter.increment(
-        nftContract.address,
-        BigNumber.from(411),
-        burner.address
+      const data = account.counter.interface.encodeFunctionData('increment');
+
+      const {signature, request} = await signMetaTxRequest(
+        account.counter.provider,
+        31337,
+        {
+          to: account.counter.address,
+          from: burner.address,
+          authorizer: account.address,
+          nftContract: nftContract.address,
+          nftChainId: '1',
+          nftTokenId: '1',
+          targetChainId: '31337',
+          data,
+        },
+        Object.assign(account.forwarder, {name: NAME})
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
 
         if (match) {
-          const [_sender, _urls, callData, callbackFunction, extraData] = match[1]
-            .split(', ')
-            .map((s) => (s.startsWith('[') ? JSON.parse(s.substring(1, s.length - 1)) : JSON.parse(s)));
-          // console.log(callData);
-          // JSON RPC Provider would now look up the current owner and sign it
-          // console.log(`${urls}/gateway/${sender}/${callData}`);
-
-          // decode the bytes
-          const abi = new ethers.utils.AbiCoder();
-          const [_from, nonce, _nftContract, tokenId, tokenNonce] = abi.decode(
-            ['address', 'uint256', 'address', 'uint256', 'uint256'],
-            callData
-          );
-
-          // lookup current owner on mainnet
-
-          // here we mock the proof for a different current owner
-          const message = await relayer.forwarder.createMessage(
-            account.address,
-            nonce,
-            _nftContract,
-            tokenId,
-            tokenNonce
-          );
-
-          const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
-
-          // response = json_rpc_call(url, 'durin_call', {'to': forwarder.address, 'data': calldata, 'abi': abi})
-
-          await expect(
-            relayer.forwarder.signer.sendTransaction({
-              to: forwarder.address,
-              data: ethers.utils.hexConcat([callbackFunction, abi.encode(['bytes', 'bytes'], [proof, extraData])]),
-            })
-          ).to.be.revertedWith('TestForwarder: ownership proof');
+          await expect(handleOffchainLookup(match, relayer, forwarder, account)).to.be.revertedWith('Unauthorized()');
 
           const count = await counter.count(account.address);
 
@@ -310,57 +310,13 @@ describe.only('Counter', function () {
         .catch(async (e: Error) => {
           const match = /OffchainLookup\((.*)\)/.exec(e.message);
           if (match) {
-            console.warn('HAS THROWN ERROR');
-
-            const [_sender, _urls, callData, callbackFunction, extraData] = match[1]
-              .split(', ')
-              .map((s) => (s.startsWith('[') ? JSON.parse(s.substring(1, s.length - 1)) : JSON.parse(s)));
-            // console.log(callData);
-            // JSON RPC Provider would now look up the current owner and sign it
-            // console.log(`${urls}/gateway/${sender}/${callData}`);
-
-            // decode the bytes
-            const abi = new ethers.utils.AbiCoder();
-            const [from, authorizer, nonce, nftChainId, nftContract, tokenId, targetChainId, timestamp] = abi.decode(
-              ['address', 'address', 'uint256', 'uint256', 'address', 'uint256', 'uint256', 'uint256'],
-              callData
-            );
-
-            // lookup current owner on mainnet
-
-            // here we provide a proof that respects the PS approval
-            // our JSON RPC trustfully calls the contract to check for
-            // a valid approval from NFT owner ---> burner
-
-            const message = await relayer.forwarder.createMessage(
-              from,
-              authorizer,
-              nonce,
-              nftChainId,
-              nftContract,
-              tokenId,
-              timestamp
-            );
-
-            const proof = await relayer.forwarder.signer.signMessage(ethers.utils.arrayify(message));
-
-            // response = json_rpc_call(url, 'durin_call', {'to': forwarder.address, 'data': calldata, 'abi': abi})
-
-            // const tx = await relayer.forwarder.signer.sendTransaction({
-            //   to: forwarder.address,
-            //   data: ethers.utils.hexConcat([callbackFunction, abi.encode(['bytes', 'bytes'], [proof, extraData])]),
-            // });
-
-            const tx = await relayer.forwarder.executeWithProof(proof, extraData);
-
-            await tx.wait();
+            await handleOffchainLookup(match, relayer, forwarder, account);
 
             const count = await counter.count(account.address);
 
             expect(count).to.equal(1);
           } else {
             console.warn('No match');
-
             console.warn(e);
             expect(true).to.eq(false);
           }

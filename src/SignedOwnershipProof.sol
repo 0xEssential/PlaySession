@@ -21,10 +21,10 @@ contract SignedOwnershipProof {
     /// @param signer the address that currently owns the L1 NFT
     /// @param authorizer the address that currently owns the L1 NFT
     /// @param nonce the meta-transaction nonce for account
-    /// @param nftChainId the tokenId from nftContract for the NFT being utilized
-    /// @param nftContract the mainnet contract address for the NFT being utilized
+    /// @param nftChainId the chainId for the nftContract
+    /// @param nftContract the contract address for the NFT being utilized
     /// @param tokenId the tokenId from nftContract for the NFT being utilized
-    /// @param timestamp the tokenId from nftContract for the NFT being utilized
+    /// @param timestamp the timestamp from the OffchainLookup error
     /// @return the message _ownershipSigner should sign
     function createMessage(
         address signer,
