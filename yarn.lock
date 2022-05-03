@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@0xessential/contracts@^0.0.1-beta":
+  version "0.0.1-beta"
+  resolved "https://registry.yarnpkg.com/@0xessential/contracts/-/contracts-0.0.1-beta.tgz#ba33394dd358737ab173f4ceb6ba01c6f7ef7f7b"
+  integrity sha512-3zxPjhZrPMx7N1zEBH5DebF+jcY1xRq2kVBGI9X2RU8durTKtKndLdUz6LqacwbCdmUanwM0UcKrk2FnZ7piog==
+
 "@0xessential/metassential@https://github.com/0xEssential/metassential#3c77b1f":
   version "0.0.1"
   resolved "https://github.com/0xEssential/metassential#3c77b1ffad45cad0c0f8200929eeb2a59152ad86"

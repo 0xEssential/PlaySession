@@ -1,7 +1,7 @@
 import {Provider} from '@ethersproject/abstract-provider';
 import {Contract} from '@ethersproject/contracts';
 import {Web3Provider} from '@ethersproject/providers';
-import ethSigUtil, {TypedMessage} from '@metamask/eth-sig-util';
+import {signTypedData as signWithKey, SignTypedDataVersion, TypedMessage} from '@metamask/eth-sig-util';
 import {BigNumber} from 'ethers';
 import {hexZeroPad} from 'ethers/lib/utils';
 
@@ -95,10 +95,10 @@ async function signTypedData(signer: Web3Provider | string | Provider, from: str
   // If signer is a private key, use it to sign
   if (typeof signer === 'string') {
     const privateKey = Buffer.from(signer.replace(/^0x/, ''), 'hex');
-    return ethSigUtil.signTypedData({
+    return signWithKey({
       privateKey,
       data: data as unknown as TypedMessage<any>,
-      version: ethSigUtil.SignTypedDataVersion.V3,
+      version: SignTypedDataVersion.V3,
     });
   }
 
