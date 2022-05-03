@@ -19,7 +19,6 @@ contract Counter is EssentialERC2771Context {
 
         require(registeredNFTs[nft.contractAddress][nft.tokenId] == address(0), "NFT already counted");
 
-
         registeredNFTs[nft.contractAddress][nft.tokenId] = owner;
 
         unchecked {
