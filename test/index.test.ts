@@ -7,11 +7,11 @@ import {signMetaTxRequest} from './utils/messageSigner';
 const NAME = 'TestForwarder';
 
 const deployContracts = async () => {
-  const Forwarder = await ethers.getContractFactory('CounterForwarder');
+  const Forwarder = await ethers.getContractFactory('EssentialForwarder');
   const forwarder = await Forwarder.deploy(NAME, ['http://localhost:8000']);
   await forwarder.deployed();
 
-  const PlaySession = await ethers.getContractFactory('CounterPlaysession');
+  const PlaySession = await ethers.getContractFactory('EssentialPlaySession');
   const playSession = await PlaySession.deploy(forwarder.address);
   await playSession.deployed();
 
