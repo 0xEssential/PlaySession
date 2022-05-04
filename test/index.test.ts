@@ -29,21 +29,6 @@ const deployContracts = async () => {
     }
   )) as any[];
 
-  // users.map(async (user) => {
-  //   const {address, counter, forwarder} = user;
-
-  //   const wrappedCounter = wrapContract(
-  //     counter.provider,
-  //     address,
-  //     counter,
-  //     Object.assign(forwarder, {name: NAME})
-  //   ) as Contract;
-
-  //   await forwarder.createSession(address, 10_000);
-
-  //   user.wrappedCounter = wrappedCounter;
-  // });
-
   await users[0].forwarder.setPlaySessionOperator(playSession.address);
 
   return {
@@ -53,7 +38,7 @@ const deployContracts = async () => {
   };
 };
 
-const handleOffchainLookup = async (match: RegExpMatchArray, relayer: any, forwarder: any, account: any) => {
+const handleOffchainLookup = async (match: RegExpMatchArray, relayer: any, forwarder: any) => {
   const [_sender, _urls, callData, callbackFunction, extraData] = match[1]
     .split(', ')
     .map((s) => (s.startsWith('[') ? JSON.parse(s.substring(1, s.length - 1)) : JSON.parse(s)));
@@ -150,11 +135,13 @@ describe.only('Counter', function () {
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
         if (match) {
-          await handleOffchainLookup(match, relayer, forwarder, account);
+          await handleOffchainLookup(match, relayer, forwarder);
 
           const count = await counter.count(account.address);
 
           expect(count).to.equal(1);
+        } else {
+          expect(e).to.equal('');
         }
       });
     });
@@ -202,7 +189,7 @@ describe.only('Counter', function () {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
 
         if (match) {
-          await expect(handleOffchainLookup(match, relayer, forwarder, account)).to.be.revertedWith('Unauthorized()');
+          await expect(handleOffchainLookup(match, relayer, forwarder)).to.be.revertedWith('Unauthorized()');
 
           const count = await counter.count(account.address);
 
@@ -244,7 +231,7 @@ describe.only('Counter', function () {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
 
         if (match) {
-          await expect(handleOffchainLookup(match, relayer, forwarder, account)).to.be.revertedWith('Unauthorized()');
+          await expect(handleOffchainLookup(match, relayer, forwarder)).to.be.revertedWith('Unauthorized()');
 
           const count = await counter.count(account.address);
 
@@ -287,7 +274,7 @@ describe.only('Counter', function () {
         .catch(async (e: Error) => {
           const match = /OffchainLookup\((.*)\)/.exec(e.message);
           if (match) {
-            await handleOffchainLookup(match, relayer, forwarder, account);
+            await handleOffchainLookup(match, relayer, forwarder);
 
             const count = await counter.count(account.address);
 

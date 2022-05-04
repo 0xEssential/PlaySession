@@ -3,9 +3,9 @@
 
 
 "@0xessential/contracts@^0.0.1-beta":
-  version "0.0.1-beta"
-  resolved "https://registry.yarnpkg.com/@0xessential/contracts/-/contracts-0.0.1-beta.tgz#ba33394dd358737ab173f4ceb6ba01c6f7ef7f7b"
-  integrity sha512-3zxPjhZrPMx7N1zEBH5DebF+jcY1xRq2kVBGI9X2RU8durTKtKndLdUz6LqacwbCdmUanwM0UcKrk2FnZ7piog==
+  version "0.0.1-beta-3"
+  resolved "https://registry.yarnpkg.com/@0xessential/contracts/-/contracts-0.0.1-beta-3.tgz#6a1d77dd3244fd00b7ecf13ebe66937ff79477bc"
+  integrity sha512-xHuYesgBZ9P3/F7Qf97LzgHLGaXg03wIDSM+MsVIWKwY219ejoh/bNVHqxeLrF5lPCGN3gEpcOUc9P70X8JycA==
 
 "@babel/code-frame@^7.0.0":
   version "7.12.13"
