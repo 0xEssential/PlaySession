@@ -3,11 +3,9 @@
 
 
 "@0xessential/contracts@^0.0.1-beta":
-  version "0.0.1-beta-2"
-  resolved "https://registry.yarnpkg.com/@0xessential/contracts/-/contracts-0.0.1-beta-2.tgz#071d3528d9d552c1db2406e3dcf229951a42142b"
-  integrity sha512-2KLI4UxLPGGsZFnHAr/YzmqqdeVJE+AyryBAwwmvFqZ1saLZc+4r1cPMeCQIfbBQwW0VGmk3knSInzxsteaZEQ==
-  dependencies:
-    "@openzeppelin/contracts" "^4.6.0"
+  version "0.0.1-beta-3"
+  resolved "https://registry.yarnpkg.com/@0xessential/contracts/-/contracts-0.0.1-beta-3.tgz#6a1d77dd3244fd00b7ecf13ebe66937ff79477bc"
+  integrity sha512-xHuYesgBZ9P3/F7Qf97LzgHLGaXg03wIDSM+MsVIWKwY219ejoh/bNVHqxeLrF5lPCGN3gEpcOUc9P70X8JycA==
 
 "@0xessential/signers@^0.0.1-beta-3":
   version "0.0.1-beta-7"
@@ -1264,11 +1262,6 @@
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.4.2.tgz#4e889c9c66e736f7de189a53f8ba5b8d789425c2"
   integrity sha512-NyJV7sJgoGYqbtNUWgzzOGW4T6rR19FmX1IJgXGdapGPWsuMelGJn9h03nos0iqfforCbCB0iYIR0MtIuIFLLw==
-
-"@openzeppelin/contracts@^4.6.0":
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.6.0.tgz#c91cf64bc27f573836dba4122758b4743418c1b3"
-  integrity sha512-8vi4d50NNya/bQqCmaVzvHNmwHvS0OBKb7HNtuNwEE3scXWrP31fKQoGxNMT+KbzmrNZzatE3QK5p2gFONI/hg==
 
 "@sentry/core@5.30.0":
   version "5.30.0"
