@@ -112,6 +112,8 @@ describe.only('Counter', function () {
           const count = await counter.count(account.address);
 
           expect(count).to.equal(1);
+        } else {
+          expect(e).to.eq(false);
         }
       });
     });
@@ -164,6 +166,8 @@ describe.only('Counter', function () {
           const count = await counter.count(account.address);
 
           expect(count).to.equal(0);
+        } else {
+          expect(e).to.eq(false);
         }
       });
     });
@@ -206,6 +210,8 @@ describe.only('Counter', function () {
           const count = await counter.count(account.address);
 
           expect(count).to.equal(0);
+        } else {
+          expect(e).to.eq(false);
         }
       });
     });
@@ -237,7 +243,7 @@ describe.only('Counter', function () {
         },
         burner.forwarder
       );
-
+      console.warn(request, signature);
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
         if (match) {
@@ -246,6 +252,8 @@ describe.only('Counter', function () {
           const count = await counter.count(account.address);
 
           expect(count).to.equal(1);
+        } else {
+          expect(e).to.eq(true);
         }
       });
     });
