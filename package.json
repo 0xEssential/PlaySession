@@ -18,6 +18,8 @@
     "solidity"
   ],
   "devDependencies": {
+    "@0xessential/contracts": "^0.0.1-beta",
+    "@0xessential/signers": "^0.0.1-beta-7",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.12",
     "@nomiclabs/hardhat-etherscan": "^3.0.1",
     "@openzeppelin/contracts": "^4.4.2",
@@ -76,9 +78,5 @@
     "fork:node": "node ./_scripts.js fork:node",
     "fork:test": "node ./_scripts.js fork:test",
     "tenderly:push": "node ./_scripts.js tenderly:push"
-  },
-  "dependencies": {
-    "@0xessential/contracts": "^0.0.1-beta",
-    "@0xessential/signers": "^0.0.1-beta-7"
   }
 }
