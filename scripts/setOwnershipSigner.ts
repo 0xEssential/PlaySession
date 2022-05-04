@@ -4,7 +4,7 @@ import {ethers, getChainId} from 'hardhat';
 import {EssentialForwarder} from '../typechain';
 
 async function main() {
-  const [owner] = await ethers.getSigners();
+  const {deployer} = await ethers.getNamedSigners();
   const networkName = await getChainId().then(
     (id) =>
       ({
@@ -17,10 +17,13 @@ async function main() {
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const {abi, address} = require(`../deployments/${networkName}/EssentialForwarder.json`);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const {address: playSessionAddress} = require(`../deployments/${networkName}/EssentialPlaySession.json`);
 
-  const Forwarder = (await ethers.getContractAt(abi, address, owner)) as EssentialForwarder;
+  const Forwarder = (await ethers.getContractAt(abi, address, deployer)) as EssentialForwarder;
 
   await Forwarder.setOwnershipSigner('0xEd0DA2E00Ae45afd92EB55605dfaD11284087480');
+  await Forwarder.setPlaySessionOperator(playSessionAddress);
 }
 main()
   .then(() => process.exit(0))

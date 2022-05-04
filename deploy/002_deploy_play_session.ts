@@ -15,15 +15,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   if (!networkName) return;
-
   const {deployer} = await getNamedAccounts();
 
-  const ownershipApiUrl =
-    networkName == 'matic' ? 'https://middleware.nfight.xyz' : 'https://testnet-ownership-rpc.herokuapp.com/';
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const ForwarderDeployment = require(`../deployments/${networkName}/EssentialForwarder.json`);
 
-  await deploy('EssentialForwarder', {
+  await deploy('EssentialPlaySession', {
     from: deployer,
-    args: ['0xEssential PlaySession', [ownershipApiUrl]],
+    args: [ForwarderDeployment.address],
     log: true,
     autoMine: true, // speed up deployment on local network (ganache, hardhat), no effect on live networks
   });

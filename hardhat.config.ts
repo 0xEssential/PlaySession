@@ -24,7 +24,7 @@ const config: HardhatUserConfig = {
     ],
   },
   namedAccounts: {
-    deployer: 0,
+    deployer: 5,
   },
   networks: addForkConfiguration({
     hardhat: {

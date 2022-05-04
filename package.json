@@ -18,6 +18,8 @@
     "solidity"
   ],
   "devDependencies": {
+    "@0xessential/contracts": "^0.0.1-beta",
+    "@0xessential/signers": "^0.0.1-beta-7",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@0.3.0-beta.12",
     "@nomiclabs/hardhat-etherscan": "^3.0.1",
     "@openzeppelin/contracts": "^4.4.2",
@@ -34,7 +36,7 @@
     "dotenv": "^10.0.0",
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",
-    "ethers": "^5.5.3",
+    "ethers": "5.5.3",
     "fs-extra": "^10.0.0",
     "hardhat": "^2.8.3",
     "hardhat-deploy": "^0.10.4",
@@ -76,8 +78,5 @@
     "fork:node": "node ./_scripts.js fork:node",
     "fork:test": "node ./_scripts.js fork:test",
     "tenderly:push": "node ./_scripts.js tenderly:push"
-  },
-  "dependencies": {
-    "@0xessential/metassential": "https://github.com/0xEssential/metassential#3c77b1f"
   }
 }
