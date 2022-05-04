@@ -78,6 +78,7 @@
     "tenderly:push": "node ./_scripts.js tenderly:push"
   },
   "dependencies": {
-    "@0xessential/contracts": "^0.0.1-beta"
+    "@0xessential/contracts": "^0.0.1-beta",
+    "@0xessential/signers": "^0.0.1-beta-3"
   }
 }

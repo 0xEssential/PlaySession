@@ -2,13 +2,14 @@ import {expect} from 'chai';
 import {Contract} from 'ethers';
 import {ethers} from 'hardhat';
 import {setupUsers} from './utils';
-import {signMetaTxRequest} from './utils/messageSigner';
-
-const NAME = 'TestForwarder';
+import {signMetaTxRequest} from '@0xessential/signers';
+import {EssentialForwarder} from '../typechain';
 
 const deployContracts = async () => {
   const Forwarder = await ethers.getContractFactory('EssentialForwarder');
-  const forwarder = await Forwarder.deploy(NAME, ['http://localhost:8000']);
+  const forwarder = (await Forwarder.deploy('0xEssential PlaySession', [
+    'http://localhost:8000',
+  ])) as EssentialForwarder;
   await forwarder.deployed();
 
   const PlaySession = await ethers.getContractFactory('EssentialPlaySession');
@@ -28,21 +29,6 @@ const deployContracts = async () => {
       forwarder,
     }
   )) as any[];
-
-  // users.map(async (user) => {
-  //   const {address, counter, forwarder} = user;
-
-  //   const wrappedCounter = wrapContract(
-  //     counter.provider,
-  //     address,
-  //     counter,
-  //     Object.assign(forwarder, {name: NAME})
-  //   ) as Contract;
-
-  //   await forwarder.createSession(address, 10_000);
-
-  //   user.wrappedCounter = wrappedCounter;
-  // });
 
   await users[0].forwarder.setPlaySessionOperator(playSession.address);
 
@@ -86,12 +72,12 @@ const handleOffchainLookup = async (match: RegExpMatchArray, relayer: any, forwa
 describe.only('Counter', function () {
   let fixtures: {
     counter: Contract;
-    forwarder: Contract;
+    forwarder: EssentialForwarder;
     users: ({
       address: string;
     } & {
       counter: Contract;
-      forwarder: Contract;
+      forwarder: EssentialForwarder;
       wrappedCounter: Contract;
     })[];
   };
@@ -144,10 +130,10 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        account.forwarder
       );
 
-      await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
+      await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
         if (match) {
           await handleOffchainLookup(match, relayer, forwarder, account);
@@ -195,10 +181,10 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        account.forwarder
       );
 
-      await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
+      await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
 
         if (match) {
@@ -237,7 +223,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        account.forwarder
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
@@ -263,14 +249,14 @@ describe.only('Counter', function () {
       const createSession = await account.forwarder.createSession(burner.address, 10_000);
       await createSession.wait();
 
-      const data = account.counter.interface.encodeFunctionData('increment');
+      const data = burner.counter.interface.encodeFunctionData('increment');
 
       const {signature, request} = await signMetaTxRequest(
-        account.counter.provider,
+        burner.counter.provider,
         31337,
         {
-          to: account.counter.address,
-          from: account.address,
+          to: burner.counter.address,
+          from: burner.address,
           authorizer: account.address,
           nftContract: nftContract.address,
           nftChainId: '1',
@@ -278,26 +264,19 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        burner.forwarder
       );
 
-      await relayer.forwarder
-        .preflight(request, signature)
-        .then((resp: any) => expect(resp).to.eq(true))
-        .catch(async (e: Error) => {
-          const match = /OffchainLookup\((.*)\)/.exec(e.message);
-          if (match) {
-            await handleOffchainLookup(match, relayer, forwarder, account);
+      await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
+        const match = /OffchainLookup\((.*)\)/.exec(e.message);
+        if (match) {
+          await handleOffchainLookup(match, relayer, forwarder, burner);
 
-            const count = await counter.count(account.address);
+          const count = await counter.count(account.address);
 
-            expect(count).to.equal(1);
-          } else {
-            console.warn('No match');
-            console.warn(e);
-            expect(true).to.eq(false);
-          }
-        });
+          expect(count).to.equal(1);
+        }
+      });
     });
   });
 });
