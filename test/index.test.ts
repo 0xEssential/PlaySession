@@ -3,15 +3,14 @@ import {Contract} from 'ethers';
 import {ethers} from 'hardhat';
 import {setupUsers} from './utils';
 import {signMetaTxRequest} from '@0xessential/signers';
-import { handleOffchainLookup } from './utils/offchainLookupMock';
+import {handleOffchainLookup} from './utils/offchainLookupMock';
+import {EssentialForwarder} from '../typechain';
 
 const NAME = '0xEssential PlaySession';
 
 const deployContracts = async () => {
   const Forwarder = await ethers.getContractFactory('EssentialForwarder');
-  const forwarder = (await Forwarder.deploy(NAME, [
-    'http://localhost:8000',
-  ]));
+  const forwarder = await Forwarder.deploy(NAME, ['http://localhost:8000']);
   await forwarder.deployed();
 
   const PlaySession = await ethers.getContractFactory('EssentialPlaySession');
@@ -49,7 +48,7 @@ describe.only('Counter', function () {
       address: string;
     } & {
       counter: Contract;
-      forwarder: Contract;
+      forwarder: EssentialForwarder;
       wrappedCounter: Contract;
     })[];
   };
@@ -102,7 +101,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME}) as any
+        account.forwarder as any
       );
 
       await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
@@ -155,7 +154,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME}) as any
+        account.forwarder as any
       );
 
       await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
@@ -199,7 +198,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME}) as any
+        account.forwarder as any
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
@@ -242,13 +241,13 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME}) as any
+        account.forwarder as any
       );
-      console.warn(request, signature);
+
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
         if (match) {
-          await handleOffchainLookup(match, relayer, forwarder, burner);
+          await handleOffchainLookup(match, relayer, forwarder);
 
           const count = await counter.count(account.address);
 
