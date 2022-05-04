@@ -79,6 +79,10 @@
   },
   "dependencies": {
     "@0xessential/contracts": "^0.0.1-beta",
+<<<<<<< HEAD
     "@0xessential/signers": "^0.0.1-beta-3"
+=======
+    "@0xessential/signers": "^0.0.1-beta-7"
+>>>>>>> find-problems
   }
 }

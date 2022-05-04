@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 
-export const handleOffchainLookup = async (match: RegExpMatchArray, relayer: any, forwarder: any, account: any) => {
+export const handleOffchainLookup = async (match: RegExpMatchArray, relayer: any, forwarder: any) => {
   const [_sender, _urls, callData, callbackFunction, extraData] = match[1]
     .split(', ')
     .map((s) => (s.startsWith('[') ? JSON.parse(s.substring(1, s.length - 1)) : JSON.parse(s)));

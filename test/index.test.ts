@@ -3,14 +3,15 @@ import {Contract} from 'ethers';
 import {ethers} from 'hardhat';
 import {setupUsers} from './utils';
 import {signMetaTxRequest} from '@0xessential/signers';
-import {EssentialForwarder} from '../typechain';
-import {handleOffchainLookup} from './utils/offchainLookupMock';
+import { handleOffchainLookup } from './utils/offchainLookupMock';
+
+const NAME = '0xEssential PlaySession';
 
 const deployContracts = async () => {
   const Forwarder = await ethers.getContractFactory('EssentialForwarder');
-  const forwarder = (await Forwarder.deploy('0xEssential PlaySession', [
+  const forwarder = (await Forwarder.deploy(NAME, [
     'http://localhost:8000',
-  ])) as EssentialForwarder;
+  ]));
   await forwarder.deployed();
 
   const PlaySession = await ethers.getContractFactory('EssentialPlaySession');
@@ -43,12 +44,12 @@ const deployContracts = async () => {
 describe.only('Counter', function () {
   let fixtures: {
     counter: Contract;
-    forwarder: EssentialForwarder;
+    forwarder: Contract;
     users: ({
       address: string;
     } & {
       counter: Contract;
-      forwarder: EssentialForwarder;
+      forwarder: Contract;
       wrappedCounter: Contract;
     })[];
   };
@@ -101,13 +102,13 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        account.forwarder
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
 
       await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
         if (match) {
-          await handleOffchainLookup(match, relayer, forwarder, account);
+          await handleOffchainLookup(match, relayer, forwarder);
 
           const count = await counter.count(account.address);
 
@@ -154,14 +155,14 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        account.forwarder
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
 
       await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
 
         if (match) {
-          await expect(handleOffchainLookup(match, relayer, forwarder, account)).to.be.revertedWith('Unauthorized()');
+          await expect(handleOffchainLookup(match, relayer, forwarder)).to.be.revertedWith('Unauthorized()');
 
           const count = await counter.count(account.address);
 
@@ -198,14 +199,14 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        account.forwarder
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
 
         if (match) {
-          await expect(handleOffchainLookup(match, relayer, forwarder, account)).to.be.revertedWith('Unauthorized()');
+          await expect(handleOffchainLookup(match, relayer, forwarder)).to.be.revertedWith('Unauthorized()');
 
           const count = await counter.count(account.address);
 
@@ -241,7 +242,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        burner.forwarder
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
       console.warn(request, signature);
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
