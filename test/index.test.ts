@@ -2,9 +2,9 @@ import {expect} from 'chai';
 import {Contract} from 'ethers';
 import {ethers} from 'hardhat';
 import {setupUsers} from './utils';
-import {signMetaTxRequest} from './utils/messageSigner';
+import {signMetaTxRequest} from '@0xessential/signers';
 
-const NAME = 'TestForwarder';
+const NAME = '0xEssential PlaySession';
 
 const deployContracts = async () => {
   const Forwarder = await ethers.getContractFactory('EssentialForwarder');
@@ -129,7 +129,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
@@ -182,7 +182,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
@@ -224,7 +224,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
@@ -265,7 +265,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        Object.assign(account.forwarder, {name: NAME})
+        Object.assign(account.forwarder, {name: NAME}) as any
       );
 
       await relayer.forwarder
