@@ -11,7 +11,7 @@ contract Counter is EssentialERC2771Context {
 
     event Counted(address indexed contractAddress, uint256 indexed tokenId, address indexed counter);
 
-    constructor(address trustedForwarder) EssentialERC2771Context(trustedForwarder) {}
+    constructor(address trustedForwarder) EssentialERC2771Context(trustedForwarder) {} // solhint-disable-line no-empty-blocks
 
     function increment() external onlyForwarder {
         IForwardRequest.NFT memory nft = _msgNFT();

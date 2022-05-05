@@ -40,7 +40,7 @@ const deployContracts = async () => {
   };
 };
 
-describe.only('Counter', function () {
+describe('Counter', function () {
   let fixtures: {
     counter: Contract;
     forwarder: Contract;
@@ -49,7 +49,6 @@ describe.only('Counter', function () {
     } & {
       counter: Contract;
       forwarder: EssentialForwarder;
-      wrappedCounter: Contract;
     })[];
   };
 
@@ -101,10 +100,10 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        account.forwarder as any
+        account.forwarder
       );
 
-      await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
+      await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
         if (match) {
           await handleOffchainLookup(match, relayer, forwarder);
@@ -154,10 +153,10 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        account.forwarder as any
+        account.forwarder
       );
 
-      await relayer.forwarder.preflight(request as any, signature).catch(async (e: Error) => {
+      await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
         const match = /OffchainLookup\((.*)\)/.exec(e.message);
 
         if (match) {
@@ -198,7 +197,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        account.forwarder as any
+        account.forwarder
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
@@ -241,7 +240,7 @@ describe.only('Counter', function () {
           targetChainId: '31337',
           data,
         },
-        account.forwarder as any
+        account.forwarder
       );
 
       await relayer.forwarder.preflight(request, signature).catch(async (e: Error) => {
