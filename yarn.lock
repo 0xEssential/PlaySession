@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@0xessential/contracts/-/contracts-0.0.1-beta-3.tgz#6a1d77dd3244fd00b7ecf13ebe66937ff79477bc"
   integrity sha512-xHuYesgBZ9P3/F7Qf97LzgHLGaXg03wIDSM+MsVIWKwY219ejoh/bNVHqxeLrF5lPCGN3gEpcOUc9P70X8JycA==
 
-"@0xessential/signers@^0.0.1-beta-7":
-  version "0.0.1-beta-9"
-  resolved "https://registry.yarnpkg.com/@0xessential/signers/-/signers-0.0.1-beta-9.tgz#6a95db88a05a349cdad51476204399a02e97c9da"
-  integrity sha512-dEyF6Rvp7u92ZfQqkaXBYda2k0qhtT7cGh4f9MLxcaLtYG051CwArlw3zySHmhxd3mIbjKbb42szDtTt/l3U0A==
+"@0xessential/signers@^0.0.1-beta-10":
+  version "0.0.1-beta-10"
+  resolved "https://registry.yarnpkg.com/@0xessential/signers/-/signers-0.0.1-beta-10.tgz#4e5a262b55bd884035924c2a8136d04c96a1592a"
+  integrity sha512-t+6QgJnJJiOH5stlpZ3JcLkvcZLR2uAUfrH5TlQI/E94KWutni0P1F3BITwoRtCvjAXvDUygVY5Gf/l2r65BoQ==
   dependencies:
     "@metamask/eth-sig-util" "^4.0.1"
     ethers "^5.6.1"

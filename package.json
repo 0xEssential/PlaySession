@@ -19,7 +19,7 @@
   ],
   "devDependencies": {
     "@0xessential/contracts": "^0.0.1-beta",
-    "@0xessential/signers": "^0.0.1-beta-7",
+    "@0xessential/signers": "^0.0.1-beta-10",
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.1",
     "@openzeppelin/contracts": "^4.4.2",
